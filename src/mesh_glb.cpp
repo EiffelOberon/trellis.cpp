@@ -219,7 +219,7 @@ static std::string asset_copyright_json(const char* copyright) {
 }
 
 bool write_glb(const char* path, const float* verts, int64_t V, const int32_t* faces, int64_t F,
-               const float* colors, int64_t seed, const char* copyright) {
+               const float* colors, int64_t seed, const char* copyright, std::vector<uint8_t>* encoded) {
     // 1. rotate (x,y,z)->(x,z,-y); track min/max
     std::vector<float> pos((size_t)V * 3);
     float mn[3] = { FLT_MAX, FLT_MAX, FLT_MAX }, mx[3] = { -FLT_MAX, -FLT_MAX, -FLT_MAX };
@@ -277,6 +277,7 @@ bool write_glb(const char* path, const float* verts, int64_t V, const int32_t* f
     w_u32(out, (uint32_t)bin.size()); w_u32(out, 0x004E4942);          // BIN chunk
     out.insert(out.end(), bin.begin(), bin.end());
 
+    if (encoded) { *encoded = std::move(out); return true; }
     FILE* f = fopen(path, "wb");
     if (!f) return false;
     bool ok = fwrite(out.data(), 1, out.size(), f) == out.size();
@@ -327,7 +328,7 @@ bool write_glb_textured(const char* path, const float* verts, int64_t V, const f
                         const int32_t* faces, int64_t F,
                         const unsigned char* base_rgba, const unsigned char* mr_rgba, int T,
                         bool double_sided, int64_t seed, const char* copyright, bool use_webp,
-                        const unsigned char* nrm_rgba, const float* tangents) {
+                        const unsigned char* nrm_rgba, const float* tangents, std::vector<uint8_t>* encoded) {
     // rotate positions (x,z,-y) + min/max
     std::vector<float> pos((size_t)V*3);
     float mn[3]={FLT_MAX,FLT_MAX,FLT_MAX}, mx[3]={-FLT_MAX,-FLT_MAX,-FLT_MAX};
@@ -442,6 +443,7 @@ bool write_glb_textured(const char* path, const float* verts, int64_t V, const f
     w_u32(o,0x46546C67); w_u32(o,2); w_u32(o,total);
     w_u32(o,(uint32_t)json.size()); w_u32(o,0x4E4F534A); o.insert(o.end(),json.begin(),json.end());
     w_u32(o,(uint32_t)bin.size()); w_u32(o,0x004E4942); o.insert(o.end(),bin.begin(),bin.end());
+    if (encoded) { *encoded = std::move(o); return true; }
     FILE* f=fopen(path,"wb"); if(!f) return false;
     bool ok=fwrite(o.data(),1,o.size(),f)==o.size(); fclose(f); return ok;
 }

@@ -431,6 +431,22 @@ size_t Model::total_bytes() const {
     return s;
 }
 
+Model::~Model() { free(); }
+Model::Model(Model&& other) noexcept { swap(other); }
+Model& Model::operator=(Model&& other) noexcept {
+    if (this != &other) { free(); swap(other); }
+    return *this;
+}
+void Model::swap(Model& other) noexcept {
+    using std::swap;
+    swap(gguf, other.gguf); swap(meta, other.meta);
+    swap(backend, other.backend); swap(buffer, other.buffer);
+    swap(buffer_repack, other.buffer_repack); swap(ctx_host, other.ctx_host);
+    swap(ctx_repack, other.ctx_repack); swap(sched, other.sched);
+    swap(tensors, other.tensors); swap(arch, other.arch);
+    swap(config_json, other.config_json); swap(on_gpu, other.on_gpu);
+}
+
 void Model::free() {
     if (sched) ggml_backend_sched_free(sched);
     if (buffer_repack) ggml_backend_buffer_free(buffer_repack);

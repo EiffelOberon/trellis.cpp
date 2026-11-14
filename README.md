@@ -22,6 +22,9 @@ Prebuilt binaries for Linux and Windows (Vulkan, ROCm, CUDA) are published on th
 
 ## Quick start
 
+For the native Windows/CUDA worker API and optional TensorRT sparse-structure
+flow backend, see [the implementation and RTX 5080 validation report](docs/onnx-tensorrt.md).
+
 New here? **Trellis Studio** is a one-command install that auto-detects your GPU
 runtime (CUDA / ROCm / Vulkan), downloads the server + weights, and gives you a
 drag-an-image → 3D desktop app with an interactive preview and a saved gallery.

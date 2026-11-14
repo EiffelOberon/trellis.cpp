@@ -5,6 +5,8 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <climits>
+#include <memory>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -12,6 +14,14 @@
 #include "stb_image_resize.h"
 
 namespace trellis {
+
+static unsigned char* load_rgba(const ImageInput& source, int* width, int* height, int* channels) {
+    if (source.bytes) {
+        if (!source.size || source.size > INT_MAX) return nullptr;
+        return stbi_load_from_memory(source.bytes, static_cast<int>(source.size), width, height, channels, 4);
+    }
+    return stbi_load(source.path.c_str(), width, height, channels, 4);
+}
 
 std::vector<float> normalize_cutout(const std::vector<unsigned char>& rgb, int sz, int S) {
     const size_t pixels = (size_t)sz * sz;
@@ -62,19 +72,20 @@ static std::vector<unsigned char> alpha_to_cutout(const unsigned char* rgba, int
     return crop;
 }
 
-bool image_has_alpha(const std::string& path) {
+bool image_has_alpha(const ImageInput& path) {
     int W, H, ch;
-    unsigned char* img = stbi_load(path.c_str(), &W, &H, &ch, 4);
+    unsigned char* img = load_rgba(path, &W, &H, &ch);
+    std::unique_ptr<unsigned char, decltype(&stbi_image_free)> owned(img, stbi_image_free);
     if (!img) return false;
     bool has_alpha = false;
     for (size_t i = 0; i < (size_t)W * H; ++i) if (img[4*i+3] < 250) { has_alpha = true; break; }
-    stbi_image_free(img);
     return has_alpha;
 }
 
-std::vector<unsigned char> threshold_cutout(const std::string& path, int& sz) {
+std::vector<unsigned char> threshold_cutout(const ImageInput& path, int& sz) {
     int W, H, ch;
-    unsigned char* img = stbi_load(path.c_str(), &W, &H, &ch, 4);   // force RGBA
+    unsigned char* img = load_rgba(path, &W, &H, &ch);   // force RGBA
+    std::unique_ptr<unsigned char, decltype(&stbi_image_free)> owned(img, stbi_image_free);
     if (!img) { fprintf(stderr, "preprocess: cannot load %s\n", path.c_str()); sz = 0; return {}; }
 
     // alpha: use existing alpha if the image has one and isn't all opaque; else white-bg removal.
@@ -86,20 +97,20 @@ std::vector<unsigned char> threshold_cutout(const std::string& path, int& sz) {
         else { int mn = std::min({img[4*i], img[4*i+1], img[4*i+2]}); alpha[i] = mn < 232 ? 1.0f : 0.0f; }
     }
     std::vector<unsigned char> crop = alpha_to_cutout(img, W, H, alpha, sz);
-    stbi_image_free(img);
     return crop;
 }
 
-std::vector<float> preprocess_image(const std::string& path, int S) {
+std::vector<float> preprocess_image(const ImageInput& path, int S) {
     int sz;
     std::vector<unsigned char> crop = threshold_cutout(path, sz);
     if (crop.empty()) return {};
     return normalize_cutout(crop, sz, S);
 }
 
-std::vector<unsigned char> birefnet_cutout(const std::string& path, const Model& bm, int gpu, int& sz) {
+std::vector<unsigned char> birefnet_cutout(const ImageInput& path, const Model& bm, int gpu, int& sz) {
     int W, H, ch;
-    unsigned char* img = stbi_load(path.c_str(), &W, &H, &ch, 4);
+    unsigned char* img = load_rgba(path, &W, &H, &ch);
+    std::unique_ptr<unsigned char, decltype(&stbi_image_free)> owned(img, stbi_image_free);
     if (!img) { fprintf(stderr, "birefnet_cutout: cannot load %s\n", path.c_str()); sz = 0; return {}; }
     // BiRefNet is evaluated at its fixed square size, but its matte is resized
     // back to the source dimensions before cropping. Applying it to the 1024x1024
@@ -117,12 +128,10 @@ std::vector<unsigned char> birefnet_cutout(const std::string& path, const Model&
     for (size_t i = 0; i < alpha1024.size(); ++i) alpha1024[i] = 1.0f / (1.0f + std::exp(-logits[i]));
     std::vector<float> alpha((size_t)W*H);
     if (!stbir_resize_float(alpha1024.data(), R, R, 0, alpha.data(), W, H, 0, 1)) {
-        stbi_image_free(img);
         sz = 0;
         return {};
     }
     std::vector<unsigned char> crop = alpha_to_cutout(img, W, H, alpha, sz);
-    stbi_image_free(img);
     return crop;
 }
 

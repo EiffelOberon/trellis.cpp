@@ -89,6 +89,10 @@ endif()
 
 # --- core library ----------------------------------------------------------
 add_library(trellis_core STATIC
+  src/pipeline.cpp
+  src/trellis_args.cpp
+  src/trellis_job.cpp
+  src/trt_flow.cpp
   src/trellis_debug.cpp
   src/trellis_sched.cpp
   src/trellis_model.cpp
@@ -122,6 +126,17 @@ add_library(trellis_core STATIC
 target_include_directories(trellis_core PUBLIC include ${GGML_DIR}/include ${CMAKE_SOURCE_DIR}/thirdparty/stb ${CMAKE_SOURCE_DIR}/thirdparty/xatlas ${CMAKE_SOURCE_DIR}/thirdparty/meshoptimizer ${CMAKE_SOURCE_DIR}/thirdparty/fqms)
 target_compile_definitions(trellis_core PRIVATE TRELLIS_GIT_COMMIT="${TRELLIS_GIT_COMMIT}" TRELLIS_GIT_DIRTY=${TRELLIS_GIT_DIRTY} TRELLIS_BUILD_TIMESTAMP="${TRELLIS_BUILD_TIMESTAMP_UTC}" TRELLIS_APP_VERSION="${TRELLIS_APP_VERSION}")
 target_link_libraries(trellis_core PUBLIC ggml ggml-base ggml-cpu)
+
+option(TRELLIS_TENSORRT "Enable the optional TensorRT dense SS flow runtime" OFF)
+if(TRELLIS_TENSORRT)
+  if(NOT TARGET ggml-cuda)
+    message(FATAL_ERROR "TRELLIS_TENSORRT requires GGML_CUDA=ON")
+  endif()
+  find_path(TENSORRT_INCLUDE_DIR NvInfer.h HINTS "${TENSORRT_ROOT}/include" REQUIRED)
+  target_include_directories(trellis_core PRIVATE "${TENSORRT_INCLUDE_DIR}")
+  target_compile_definitions(trellis_core PUBLIC TRELLIS_USE_TENSORRT)
+  target_link_libraries(trellis_core PRIVATE ${CMAKE_DL_LIBS})
+endif()
 
 add_executable(trellis-refine-core tools/mesh_quad_matching/selective_refinement_core.cpp)
 target_link_libraries(trellis-refine-core PRIVATE trellis_core)
@@ -456,16 +471,17 @@ add_executable(trellis-test-shape-dec src/test_shape_dec.cpp)
 target_link_libraries(trellis-test-shape-dec PRIVATE trellis_core)
 set_target_properties(trellis-test-shape-dec PROPERTIES BUILD_RPATH "${GGML_RPATH}")
 
-add_executable(trellis-test-pixal3d src/test_pixal3d.cpp src/trellis_args.cpp)
+add_executable(trellis-test-pixal3d src/test_pixal3d.cpp)
 target_link_libraries(trellis-test-pixal3d PRIVATE trellis_core)
 set_target_properties(trellis-test-pixal3d PROPERTIES BUILD_RPATH "${GGML_RPATH}")
 
-add_executable(trellis-cli src/trellis_cli_main.cpp src/trellis_cli.cpp src/trellis_args.cpp)
+add_executable(trellis-cli src/trellis_cli_main.cpp)
 target_link_libraries(trellis-cli PRIVATE trellis_core)
 set_target_properties(trellis-cli PROPERTIES BUILD_RPATH "${GGML_RPATH}")
 
 # Resident HTTP server (keeps the process warm; wraps trellis_run).
 find_package(Threads REQUIRED)
+target_link_libraries(trellis_core PUBLIC Threads::Threads)
 add_executable(post-replay src/post_replay.cpp)
 if(TARGET trellis-retopo-atlas)
   add_dependencies(trellis-retopo-atlas post-replay trellis-audit-quad-topology
@@ -476,7 +492,7 @@ endif()
 target_link_libraries(post-replay PRIVATE trellis_core Threads::Threads)
 set_target_properties(post-replay PROPERTIES BUILD_RPATH "${GGML_RPATH}")
 
-add_executable(trellis-server src/trellis-server.cpp src/trellis_cli.cpp src/trellis_args.cpp)
+add_executable(trellis-server src/trellis-server.cpp)
 target_include_directories(trellis-server PRIVATE ${CMAKE_SOURCE_DIR}/thirdparty/cpp-httplib)
 target_link_libraries(trellis-server PRIVATE trellis_core Threads::Threads)
 set_target_properties(trellis-server PROPERTIES BUILD_RPATH "${GGML_RPATH}")
@@ -484,3 +500,14 @@ set_target_properties(trellis-server PROPERTIES BUILD_RPATH "${GGML_RPATH}")
 add_executable(trellis-test-ss-full src/test_ss_full.cpp)
 target_link_libraries(trellis-test-ss-full PRIVATE trellis_core)
 set_target_properties(trellis-test-ss-full PROPERTIES BUILD_RPATH "${GGML_RPATH}")
+
+add_executable(trellis-job src/job_main.cpp)
+target_link_libraries(trellis-job PRIVATE trellis_core Threads::Threads)
+add_executable(trellis-test-job src/test_job.cpp)
+target_link_libraries(trellis-test-job PRIVATE trellis_core Threads::Threads)
+add_executable(trellis-test-trt src/test_trt.cpp)
+target_link_libraries(trellis-test-trt PRIVATE trellis_core)
+add_executable(trellis-compare-ss src/compare_ss.cpp)
+target_link_libraries(trellis-compare-ss PRIVATE trellis_core)
+enable_testing()
+add_test(NAME trellis-job-contract COMMAND trellis-test-job)

@@ -91,6 +91,8 @@ void print_usage(const char* argv0, bool server) {
         "  -o, --output PATH       output .glb                  (default model.glb)\n"
         "      --copyright TEXT    glTF asset.copyright metadata\n"
         "  -m, --models DIR        GGUF model directory\n"
+        "      --ss-engine FILE    TensorRT SS engine (TRELLIS.2, --res 512, CUDA only)\n"
+        "      --capture-dir DIR   save native noise and SS parity fixtures\n"
         "      --model FAMILY      trellis (default) | pixal3d — which flow weights the model\n"
         "                          directory holds. pixal3d swaps the DINOv3 cross-attention for\n"
         "                          view-aligned projection conditioning; the samplers, decoders\n"
@@ -209,6 +211,8 @@ bool parse_args(int argc, char** argv, TrellisParams& p) {
         else if (a == "-o" || a == "--output")  { const char* v = need(a.c_str()); if (!v) return false; p.output = v; }
         else if (a == "--copyright")            { const char* v = need(a.c_str()); if (!v) return false; p.copyright = v; }
         else if (a == "-m" || a == "--models")  { const char* v = need(a.c_str()); if (!v) return false; p.models = v; }
+        else if (a == "--ss-engine")            { const char* v = need(a.c_str()); if (!v) return false; p.ss_engine = v; }
+        else if (a == "--capture-dir")          { const char* v = need(a.c_str()); if (!v) return false; p.capture_dir = v; }
         else if (a == "--model")                { const char* v = need(a.c_str()); if (!v) return false;
                                                   if      (std::strcmp(v, "trellis") == 0) p.family = ModelFamily::Trellis;
                                                   else if (std::strcmp(v, "pixal3d") == 0) p.family = ModelFamily::Pixal3D;

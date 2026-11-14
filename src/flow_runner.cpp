@@ -2,6 +2,7 @@
 #include "trellis_model.h"
 #include "trellis_debug.h"
 #include "trellis_sched.h"
+#include "job_control.h"
 #include "ggml.h"
 #include "ggml-backend.h"
 #include "ggml-alloc.h"
@@ -228,6 +229,7 @@ std::vector<float> sample_flow(const FlowFwd& fwd, std::vector<float> sample,
     };
     progress(0);
     for (int i = 0; i < sp.steps; ++i) {
+        if (sp.control) sp.control->check(i, sp.steps);
         const float t = ts[i], tprev = ts[i + 1];
         const float gs = (sp.gi0 <= t && t <= sp.gi1) ? sp.guidance_strength : 1.0f;
         const float tscaled = 1000.0f * t;
@@ -239,6 +241,7 @@ std::vector<float> sample_flow(const FlowFwd& fwd, std::vector<float> sample,
             ++n_fwd;
         } else {
             pos = fwd(sample, tscaled, cond);
+            if (sp.control) sp.control->check(i, sp.steps);
             neg = fwd(sample, tscaled, neg_cond);
             n_fwd += 2;
             for (size_t k = 0; k < Nst; ++k) pred[k] = gs * pos[k] + (1 - gs) * neg[k];
@@ -256,16 +259,25 @@ std::vector<float> sample_flow(const FlowFwd& fwd, std::vector<float> sample,
                 // all-NaN SLAT. Clamp ratio to a sane band: it sits at ~1.0 for in-distribution
                 // props (a no-op there), and only bites on the pathological tail. (TRELLIS_NOFIX=1
                 // restores the raw behaviour for A/B.)
-                if (!no_fix) { if (!std::isfinite(ratio)) ratio = 1.0f; ratio = fminf(fmaxf(ratio, 0.2f), 5.0f); }
+                if (!no_fix) {
+                    if ((!std::isfinite(ratio) || ratio < 0.2f || ratio > 5.0f) && sp.control && sp.control->metrics)
+                        ++sp.control->metrics->clamped_guidance;
+                    if (!std::isfinite(ratio)) ratio = 1.0f;
+                    ratio = fminf(fmaxf(ratio, 0.2f), 5.0f);
+                }
                 float gr = sp.guidance_rescale;
                 for (size_t k = 0; k < Nst; ++k) { float x0r = x0c[k]*ratio; float x0 = gr*x0r + (1-gr)*x0c[k]; pred[k] = (a*sample[k] - x0) / b; }
             }
         }
         // Safety net: never integrate a non-finite velocity (one poisoned tap would spread to the
         // whole latent on the next attention). A no-op when everything is finite.
-        if (!no_fix) for (size_t k = 0; k < Nst; ++k) if (!std::isfinite(pred[k])) pred[k] = 0.0f;
+        if (!no_fix) for (size_t k = 0; k < Nst; ++k) if (!std::isfinite(pred[k])) {
+            if (sp.control && sp.control->metrics) ++sp.control->metrics->repaired_nonfinite;
+            pred[k] = 0.0f;
+        }
         for (size_t k = 0; k < Nst; ++k) sample[k] -= (t - tprev) * pred[k];
         progress(i + 1);
+        if (sp.control) sp.control->check(i + 1, sp.steps);
         if (dbg_step) { size_t pb, sb; double pm, sm2; fstats(pred, pb, pm); fstats(sample, sb, sm2);
             if (tty) printf("\n");
             fprintf(stderr, "      [flow-step %2d] t=%.3f gs=%.1f  pred[nan=%zu max=%.3g]  sample[nan=%zu max=%.3g]\n", i, t, gs, pb, pm, sb, sm2); }

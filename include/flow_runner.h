@@ -16,6 +16,7 @@ typedef struct ggml_gallocr* ggml_gallocr_t;
 namespace trellis {
 struct Model;
 class GraphExec;
+struct RunControl;
 
 struct SamplerParams {
     int   steps             = 12;
@@ -25,6 +26,7 @@ struct SamplerParams {
     float gi1               = 1.0f;
     float rescale_t         = 1.0f;
     float sigma_min         = 1e-5f;
+    RunControl* control     = nullptr;
 };
 
 // One branch of the classifier-free guidance pair. `cond` is the cross-attention context that

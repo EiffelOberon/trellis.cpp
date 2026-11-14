@@ -19,9 +19,13 @@
 #include "mesh_shape.h"
 #include "stb_image_write.h"
 #include "trellis_run.h"
+#include "job_control.h"
+#include "trt_flow.h"
+#include "npy.h"
 #include "retopo_process.h"
 #include "ggml.h"   // proj_in_channels is read straight off the checkpoint's proj_linear weight
 #include "ggml-cpu.h"   // ggml_backend_is_cpu: the BiRefNet retry only makes sense off the CPU
+#include "ggml-backend.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -37,6 +41,8 @@
 #include <cctype>
 #include <filesystem>
 #include <system_error>
+#include <memory>
+#include <mutex>
 #ifdef __linux__
 #include <sys/wait.h>
 #include <spawn.h>
@@ -83,7 +89,27 @@ static const float SHAPE_STD[32]={5.972266f,4.706852f,5.445010f,5.209927f,5.3202
 static const float TEX_MEAN[32]={3.501659f,2.212398f,2.226094f,0.251093f,-0.026248f,-0.687364f,0.439898f,-0.928075f,0.029398f,-0.339596f,-0.869527f,1.038479f,-0.972385f,0.126042f,-1.129303f,0.455149f,-1.209521f,2.069067f,0.544735f,2.569128f,-0.323407f,2.293000f,-1.925608f,-1.217717f,1.213905f,0.971588f,-0.023631f,0.106750f,2.021786f,0.250524f,-0.662387f,-0.768862f};
 static const float TEX_STD[32]={2.665652f,2.743913f,2.765121f,2.595319f,3.037293f,2.291316f,2.144656f,2.911822f,2.969419f,2.501689f,2.154811f,3.163343f,2.621215f,2.381943f,3.186697f,3.021588f,2.295916f,3.234985f,3.233086f,2.260140f,2.874801f,2.810596f,3.292720f,2.674999f,2.680878f,2.372054f,2.451546f,2.353556f,2.995195f,2.379849f,2.786195f,2.775190f};
 
-int trellis_run(const trellis::TrellisParams& cfg) {
+int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control) {
+    static std::mutex pipeline_mutex;
+    std::lock_guard<std::mutex> pipeline_lock(pipeline_mutex);
+    trellis::RunControl cli_control;
+    trellis::JobMetrics cli_metrics;
+    if (!control && !cfg.capture_dir.empty()) {
+        cli_control.capture_dir = cfg.capture_dir;
+        cli_control.metrics = &cli_metrics;
+        control = &cli_control;
+    }
+    auto stage = [&](const char* name, const char* backend = "native-cpu", const char* precision = "fp32") {
+        if (control) control->stage(name, backend, precision);
+    };
+    auto note_backend = [&](const trellis::Model& model) {
+        if (control && control->metrics && !control->metrics->stages.empty())
+            control->metrics->stages.back().backend = ggml_backend_name(model.backend);
+    };
+    if (!cfg.ss_engine.empty() && (cfg.cascade || cfg.family != trellis::ModelFamily::Trellis ||
+                                  cfg.gpu < 0 || (!cfg.backend.empty() && cfg.backend != "CUDA")))
+        throw std::invalid_argument("TensorRT SS requires the TRELLIS.2 512 preset on CUDA");
+    if (control && !control->capture_dir.empty()) std::filesystem::create_directories(control->capture_dir);
     namespace fs = std::filesystem;
     fs::path retopo_driver, retopo_run;
     if (cfg.retopo) {
@@ -150,7 +176,7 @@ int trellis_run(const trellis::TrellisParams& cfg) {
     // swallows stage progress when piped (e.g. under Lemonade) if the process crashes.
     setvbuf(stdout, nullptr, _IONBF, 0);
     uint32_t run_seed = cfg.seed;
-    if (run_seed == 0) {
+    if (run_seed == 0 && !(control && control->glb)) {
         std::random_device rd;
         run_seed = (uint32_t(rd()) << 16) ^ uint32_t(rd()) ^
                    uint32_t(std::chrono::high_resolution_clock::now().time_since_epoch().count());
@@ -159,6 +185,7 @@ int trellis_run(const trellis::TrellisParams& cfg) {
     } else {
         fprintf(stderr, "[trellis] generating model with seed %u\n", run_seed);
     }
+    if (control && control->metrics) control->metrics->seed = run_seed;
     // Publish the cross-module flags this run wants (modules read them with an env fallback).
     const bool F32 = cfg.f32; trellis::g_sparse_cast_f32 = F32;  // f16 default (rope bug was the real issue)
     trellis::g_no_fa = cfg.no_fa;
@@ -197,7 +224,7 @@ int trellis_run(const trellis::TrellisParams& cfg) {
                     fa_auto_htp ? " (HTP default)" : "");
         }
     }
-    const std::string& img = cfg.image;
+    const trellis::ImageInput img = control && control->image ? *control->image : trellis::ImageInput(cfg.image);
     const std::string& outglb = cfg.output;
     const std::string& M = cfg.models;
     const int gpu = cfg.gpu;
@@ -228,9 +255,18 @@ int trellis_run(const trellis::TrellisParams& cfg) {
     }
 
     std::mt19937 rng(run_seed); std::normal_distribution<float> randn(0.f, 1.f);
-    auto noise = [&](size_t n){ vector<float> v(n); for (auto& x : v) x = randn(rng); return v; };
+    int noise_index = 0;
+    auto noise = [&](size_t n){
+        vector<float> v(n); for (auto& x : v) x = randn(rng);
+        if (control && !control->capture_dir.empty()) {
+            npy::save(control->capture_dir + "/noise_" + std::to_string(noise_index) + ".npy", v.data(), {(int64_t)n});
+        }
+        ++noise_index;
+        return v;
+    };
     double t0 = now();
 
+    stage("preprocess", "ggml/cpu", "fp16 weights, fp32 activations");
     bool birefnet = cfg.birefnet == 1;
     if (cfg.birefnet < 0) {
         // Auto bg-removal. A pre-matted image keeps its own alpha (threshold path uses it
@@ -266,12 +302,13 @@ int trellis_run(const trellis::TrellisParams& cfg) {
             const std::string bg_saved_backend = trellis::g_backend;
             if (on_cpu) trellis::g_backend = "CPU";
             trellis::Model bm = trellis::Model::load(M + "/birefnet.gguf", on_cpu ? -1 : gpu);
+            note_backend(bm);
             trellis::g_backend = bg_saved_backend;
             matte_on_cpu = ggml_backend_is_cpu(bm.backend);
             try {
                 cutout = trellis::birefnet_cutout(img, bm, gpu < 0 ? 0 : gpu, cut_sz);
             } catch (...) {
-                bm.free();   // Model has no destructor: a throw here used to leak the weights
+                bm.free();   // Explicit early release; Model also cleans up on exceptions.
                 throw;       // on the device, and every retry started with less memory.
             }
             bm.free();
@@ -324,8 +361,10 @@ int trellis_run(const trellis::TrellisParams& cfg) {
     }
 
     printf("[2/6] DINOv3 conditioning\n");
+    stage("conditioning", "ggml", "fp16 weights, fp32 activations");
     vector<float> dino, dino1024;       // full token stream: 5 global + (S/16)^2 patches
     { trellis::Model m = trellis::Model::load(M + "/dinov3.gguf", gpu);
+      note_backend(m);
       dino = trellis::dinov3_encode(m, chw, 512);
       if (cascade) dino1024 = trellis::dinov3_encode(m, chw1024, 1024);
       m.free(); }
@@ -381,20 +420,49 @@ int trellis_run(const trellis::TrellisParams& cfg) {
     printf("[3/6] sparse-structure flow + decode\n");
     vector<std::array<int,3>> coords;
     {
-        trellis::Model m = trellis::Model::load(M + FP + "ss_flow.gguf", gpu);
+        stage("ss_flow", cfg.ss_engine.empty() ? "ggml" : "tensorrt", cfg.ss_engine.empty() ? "fp16 weights, bf16 KV, fp32 accumulation" : "engine-defined, fp32 IO");
+        trellis::Model m;
         trellis::DiTParams p; p.in_ch = 8; p.out_ch = 8; p.d_cond = 1024; p.cast_f32 = F32;
-        p.proj_ch = proj_ch_of(m); p.proj_mode = p.proj_ch > 0;
+        if (cfg.ss_engine.empty()) {
+            m = trellis::Model::load(M + FP + "ss_flow.gguf", gpu);
+            note_backend(m);
+            p.proj_ch = proj_ch_of(m); p.proj_mode = p.proj_ch > 0;
+        }
         // The sparse-structure DiT is dense at 16^3, and Pixal3D's SS stage projects a 16^3 grid,
         // so its proj tokens line up one-to-one with the DiT tokens in the same x-major order.
         trellis::ProjCond pc;
         if (pix) pc = build_proj(16, 512, 0, p.proj_ch, nullptr);
-        trellis::DitRunner* run = trellis::make_dense_runner(m, p, 16, Lc);
-        trellis::FlowFwd fwd = [&](const vector<float>& x, float ts, const trellis::FlowCond& c){ return run->forward(x, ts, c); };
-        trellis::SamplerParams sp; sp.steps=(cfg.steps>0?cfg.steps:12); sp.guidance_strength=cfg.gss; sp.guidance_rescale=0.7f; sp.gi0=0.6f; sp.gi1=1.0f; sp.rescale_t=5.0f;
+        std::unique_ptr<trellis::DitRunner> run;
+        std::unique_ptr<trellis::TrtFlowRunner> trt;
+        if (cfg.ss_engine.empty()) run.reset(trellis::make_dense_runner(m, p, 16, Lc));
+        else {
+            if (Lc != 1029) throw std::runtime_error("TensorRT SS requires 1029 conditioning tokens");
+            trt = std::make_unique<trellis::TrtFlowRunner>(cfg.ss_engine, gpu);
+            if (control && control->metrics) control->metrics->stages.back().precision = trt->precision();
+        }
+        int forward_index = 0;
+        trellis::FlowFwd fwd = [&](const vector<float>& x, float ts, const trellis::FlowCond& c){
+            if (control) control->check_cancel();
+            auto output = trt ? trt->forward(x, ts, c) : run->forward(x, ts, c);
+            if (control && !control->capture_dir.empty()) {
+                char name[32]; snprintf(name, sizeof name, "/forward_%03d", forward_index);
+                const std::string dir = control->capture_dir + name;
+                std::filesystem::create_directories(dir);
+                npy::save(dir + "/latent.npy", x.data(), {1,4096,8});
+                npy::save(dir + "/timestep.npy", &ts, {1});
+                npy::save(dir + "/cond.npy", c.cond, {1,Lc,1024});
+                npy::save(dir + "/velocity.npy", output.data(), {1,4096,8});
+            }
+            ++forward_index;
+            return output;
+        };
+        trellis::SamplerParams sp; sp.control=control; sp.steps=(cfg.steps>0?cfg.steps:12); sp.guidance_strength=cfg.gss; sp.guidance_rescale=0.7f; sp.gi0=0.6f; sp.gi1=1.0f; sp.rescale_t=5.0f;
         vector<float> z = trellis::sample_flow(fwd, noise(8*4096),
                               trellis::FlowCond(cond.data(), pix ? pc.proj.data()     : nullptr),
                               trellis::FlowCond(neg.data(),  nullptr), sp);  // [8,4096] ne0=8
-        delete run; m.free();
+        run.reset(); trt.reset(); m.free();
+        if (control && !control->capture_dir.empty()) npy::save(control->capture_dir + "/ss_final.npy", z.data(), {1,4096,8});
+        stage("ss_decode", "ggml", "fp16 weights, fp32 activations");
         // transpose [8,L] -> torch [8,16,16,16] memory (c*4096 + sp)
         vector<float> zdec(8*4096);
         for (int c = 0; c < 8; ++c) for (int sp2 = 0; sp2 < 4096; ++sp2) zdec[(size_t)c*4096 + sp2] = z[c + 8*sp2];
@@ -404,8 +472,10 @@ int trellis_run(const trellis::TrellisParams& cfg) {
         const bool ss_dec_on_cpu = backend_is_htp(requested_backend);
         if (ss_dec_on_cpu) trellis::g_backend = "CPU";
         trellis::Model d = trellis::Model::load(M + "/ss_dec.gguf", ss_dec_on_cpu ? -1 : gpu);
+        note_backend(d);
         trellis::g_backend = saved_backend;
         vector<float> logits = trellis::ss_decode(d, zdec); d.free();
+        if (control && !control->capture_dir.empty()) npy::save(control->capture_dir + "/ss_logits.npy", logits.data(), {1,1,64,64,64});
         coords = trellis::ss_coords(logits, 64, 32);
     }
     if (cfg.voxply) { FILE*f=fopen("out/myvox.ply","wb"); fprintf(f,"ply\nformat binary_little_endian 1.0\nelement vertex %zu\nproperty float x\nproperty float y\nproperty float z\nelement face 0\nproperty list uchar int vertex_indices\nend_header\n",coords.size()); for(auto&c:coords){float p[3]={(c[0]+0.5f)/32-0.5f,(c[1]+0.5f)/32-0.5f,(c[2]+0.5f)/32-0.5f}; fwrite(p,4,3,f);} fclose(f); }
@@ -428,19 +498,21 @@ int trellis_run(const trellis::TrellisParams& cfg) {
     auto shape_flow = [&](const std::string& path, const vector<std::array<int,3>>& cds,
                           const float* cnd, const float* ncnd, int lc,
                           int grid_res, int S, int naf_out) {
+        stage("shape_flow", "ggml", "fp16 weights, bf16 KV, fp32 accumulation");
         const int n = (int)cds.size();
         trellis::Model m = trellis::Model::load(path, gpu);
+        note_backend(m);
         trellis::DiTParams p; p.in_ch = 32; p.out_ch = 32; p.d_cond = 1024; p.cast_f32 = F32;
         p.proj_ch = proj_ch_of(m); p.proj_mode = p.proj_ch > 0;
         trellis::ProjCond pc;
         if (pix) pc = build_proj(grid_res, S, naf_out, p.proj_ch, &cds);
-        trellis::DitRunner* run = trellis::make_sparse_runner(m, p, cds, lc);
+        std::unique_ptr<trellis::DitRunner> run(trellis::make_sparse_runner(m, p, cds, lc));
         trellis::FlowFwd fwd = [&](const vector<float>& x, float ts, const trellis::FlowCond& c){ return run->forward(x, ts, c); };
-        trellis::SamplerParams sp; sp.steps=(cfg.steps>0?cfg.steps:12); sp.guidance_strength=cfg.gsh; sp.guidance_rescale=0.5f; sp.gi0=0.6f; sp.gi1=1.0f; sp.rescale_t=3.0f;
+        trellis::SamplerParams sp; sp.control=control; sp.steps=(cfg.steps>0?cfg.steps:12); sp.guidance_strength=cfg.gsh; sp.guidance_rescale=0.5f; sp.gi0=0.6f; sp.gi1=1.0f; sp.rescale_t=3.0f;
         vector<float> sn = trellis::sample_flow(fwd, noise((size_t)32*n),
                                trellis::FlowCond(cnd,  pix ? pc.proj.data()     : nullptr),
                                trellis::FlowCond(ncnd, nullptr), sp);   // [32,n]
-        delete run; m.free();
+        run.reset(); m.free();
         return sn;
     };
 
@@ -552,7 +624,9 @@ int trellis_run(const trellis::TrellisParams& cfg) {
     trellis::Mesh mesh;
     trellis::ShapeOut so;
     {
+        stage("shape_decode", "ggml", "fp16 weights, fp32 activations");
         trellis::Model m = trellis::Model::load(M + "/shape_dec.gguf", gpu);
+        note_backend(m);
         so = trellis::shape_decode(m, slat_dn, shc, RES); m.free();
         printf("      decoded voxels @res%d = %d\n", so.res, (int)so.coords.size());
         mesh = trellis::dual_grid_to_mesh(so);
@@ -635,12 +709,14 @@ int trellis_run(const trellis::TrellisParams& cfg) {
             const int tnaf = tex_lr ? 256 : 1024;
             vector<float> texlat;
 
+            stage("texture_flow", "ggml", "fp16 weights, bf16 KV, fp32 accumulation");
             trellis::Model m = trellis::Model::load(tflow, gpu);
+            note_backend(m);
             trellis::DiTParams p; p.in_ch = 64; p.out_ch = 32; p.d_cond = 1024; p.cast_f32 = F32;
             p.proj_ch = proj_ch_of(m); p.proj_mode = p.proj_ch > 0;
             trellis::ProjCond pc;
             if (pix) pc = build_proj(tgrid, tS, tnaf, p.proj_ch, &tcoords);
-            trellis::DitRunner* run = trellis::make_sparse_runner(m, p, tcoords, tlc);
+            std::unique_ptr<trellis::DitRunner> run(trellis::make_sparse_runner(m, p, tcoords, tlc));
             trellis::FlowFwd fwd = [&](const vector<float>& st, float ts, const trellis::FlowCond& c) {
                 vector<float> x64((size_t)64 * tN);
                 for (int n = 0; n < tN; ++n) {
@@ -649,13 +725,15 @@ int trellis_run(const trellis::TrellisParams& cfg) {
                 }
                 return run->forward(x64, ts, c);
             };
-            trellis::SamplerParams sp; sp.steps=(cfg.steps>0?cfg.steps:12); sp.guidance_strength=1.0f; sp.guidance_rescale=0.0f; sp.gi0=0.6f; sp.gi1=0.9f; sp.rescale_t=3.0f;
+            trellis::SamplerParams sp; sp.control=control; sp.steps=(cfg.steps>0?cfg.steps:12); sp.guidance_strength=1.0f; sp.guidance_rescale=0.0f; sp.gi0=0.6f; sp.gi1=0.9f; sp.rescale_t=3.0f;
             texlat = trellis::sample_flow(fwd, noise((size_t)32*tN),
                          trellis::FlowCond(tcond, pix ? pc.proj.data()     : nullptr),
                          trellis::FlowCond(tneg,  nullptr), sp);  // [32,tN]
-            delete run; m.free();
+            run.reset(); m.free();
             for (int n = 0; n < tN; ++n) for (int c = 0; c < 32; ++c) texlat[(size_t)c + 32*n] = texlat[(size_t)c + 32*n]*TEX_STD[c] + TEX_MEAN[c];
+            stage("texture_decode", "ggml", "fp16 weights, fp32 activations");
             trellis::Model decoder = trellis::Model::load(M + "/tex_dec.gguf", gpu);
+            note_backend(decoder);
             vector<float> pbr = trellis::tex_decode(decoder, texlat, tcoords, tsubs); decoder.free();
             vector<float> decoded((size_t)Mv * 6);
             auto cl = [](float v){ return v < 0 ? 0.f : (v > 1 ? 1.f : v); };
@@ -748,6 +826,7 @@ int trellis_run(const trellis::TrellisParams& cfg) {
     }
 
     printf("[7/7] write %s\n", outglb.c_str());
+    stage("mesh_processing", "native-cpu/cuda", "fp32");
     bool textured = false;
     if (!pbr6.empty()) {   // UV-baked textured GLB (PBR material)
         // UV method: xatlas unwrap by default — unique chart space per face, no projection
@@ -1025,39 +1104,48 @@ int trellis_run(const trellis::TrellisParams& cfg) {
         // full material detail survives simplification.
         trellis::VoxelPbr vox{pbr_coords, &pbr6, pbr_res, &bvh};
         const std::vector<float> no_vp;
+        stage("bake");
         trellis::BakedMesh bm = boxuv ? trellis::uv_box_project(dv, dV, df, dF, no_vp, T, &vox, nsp)
                                       : trellis::uv_bake(dv, dV, df, dF, no_vp, T, &vox, nsp);
         if (!boxuv && !bm.ok()) bm = trellis::uv_chart_project(dv, dV, df, dF, no_vp, T, &vox, nsp);
         if (bm.ok()) {
             if (pix) pixal3d_to_trellis_frame(bm.verts);
-            trellis::write_glb_textured(outglb.c_str(), bm.verts.data(), (int64_t)bm.verts.size()/3, bm.uv.data(),
+            stage("serialize");
+            if (!trellis::write_glb_textured(outglb.c_str(), bm.verts.data(), (int64_t)bm.verts.size()/3, bm.uv.data(),
                                         bm.faces.data(), (int64_t)bm.faces.size()/3, bm.base.data(), bm.mr.data(), bm.T,
                                         /*double_sided=*/rm.F() == 0, run_seed,
                                         cfg.copyright.empty() ? nullptr : cfg.copyright.c_str(),
                                         /*use_webp=*/cfg.webp != 0,
                                         bm.nrm.empty() ? nullptr : bm.nrm.data(),
-                                        bm.tangents.empty() ? nullptr : bm.tangents.data());
-            std::string tex = outglb.substr(0, outglb.find_last_of('.')) + "_base.png";
-            stbi_write_png(tex.c_str(), bm.T, bm.T, 4, bm.base.data(), bm.T*4);
-            if (!bm.nrm.empty()) {
-                std::string ntex = outglb.substr(0, outglb.find_last_of('.')) + "_normal.png";
-                stbi_write_png(ntex.c_str(), bm.T, bm.T, 4, bm.nrm.data(), bm.T*4);
+                                        bm.tangents.empty() ? nullptr : bm.tangents.data(), control ? control->glb : nullptr))
+                throw std::runtime_error("Textured GLB serialization failed");
+            if (!control || !control->glb) {
+                std::string tex = outglb.substr(0, outglb.find_last_of('.')) + "_base.png";
+                stbi_write_png(tex.c_str(), bm.T, bm.T, 4, bm.base.data(), bm.T*4);
+                if (!bm.nrm.empty()) {
+                    std::string ntex = outglb.substr(0, outglb.find_last_of('.')) + "_normal.png";
+                    stbi_write_png(ntex.c_str(), bm.T, bm.T, 4, bm.nrm.data(), bm.T*4);
+                }
+                printf("      textured GLB (atlas %d, +%s%s)\n", bm.T, tex.c_str(), bm.nrm.empty() ? "" : ", +normal map");
             }
             textured = true;
-            printf("      textured GLB (atlas %d, +%s%s)\n", bm.T, tex.c_str(), bm.nrm.empty() ? "" : ", +normal map");
         } else printf("      uv_bake failed; falling back to vertex colors\n");
     }
+    if (control && control->glb && !textured) throw std::runtime_error("PBR bake failed: textured GLB required");
     if (cfg.retopo && !textured) {
         fprintf(stderr,"[trellis] textured POST unavailable for retopo\n");
         return 1;
     }
     if (pix) pixal3d_to_trellis_frame(mesh.verts);   // untextured GLB and the .ply
     if (!textured)
-        trellis::write_glb(outglb.c_str(), mesh.verts.data(), mesh.V(), mesh.faces.data(), mesh.F(),
+        if (!trellis::write_glb(outglb.c_str(), mesh.verts.data(), mesh.V(), mesh.faces.data(), mesh.F(),
                            colors.empty() ? nullptr : colors.data(), run_seed,
-                           cfg.copyright.empty() ? nullptr : cfg.copyright.c_str());
+                           cfg.copyright.empty() ? nullptr : cfg.copyright.c_str()))
+            throw std::runtime_error("GLB serialization failed");
     std::string ply = outglb.substr(0, outglb.find_last_of('.')) + ".ply";
-    trellis::write_ply(ply.c_str(), mesh.verts.data(), mesh.V(), mesh.faces.data(), mesh.F(), colors.empty() ? nullptr : colors.data());
+    if (!control || !control->glb)
+        trellis::write_ply(ply.c_str(), mesh.verts.data(), mesh.V(), mesh.faces.data(), mesh.F(), colors.empty() ? nullptr : colors.data());
     printf("done in %.1fs -> %s (+ %s)\n", now() - t0, outglb.c_str(), ply.c_str());
+    if (control) control->finish_stage();
     return 0;
 }

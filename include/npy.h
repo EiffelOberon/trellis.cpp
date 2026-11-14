@@ -7,6 +7,7 @@
 #include <vector>
 #include <stdexcept>
 #include <numeric>
+#include <memory>
 
 namespace npy {
 
@@ -21,6 +22,7 @@ struct Array {
 inline Array load(const std::string& path) {
     FILE* f = fopen(path.c_str(), "rb");
     if (!f) throw std::runtime_error("npy: cannot open " + path);
+    std::unique_ptr<FILE, decltype(&fclose)> close_file(f, fclose);
     unsigned char magic[8];
     if (fread(magic, 1, 8, f) != 8 || memcmp(magic, "\x93NUMPY", 6) != 0)
         throw std::runtime_error("npy: bad magic " + path);
@@ -48,7 +50,6 @@ inline Array load(const std::string& path) {
     a.data.resize(a.numel());
     if ((int64_t)fread(a.data.data(), sizeof(float), a.numel(), f) != a.numel())
         throw std::runtime_error("npy: short data " + path);
-    fclose(f);
     return a;
 }
 
@@ -62,12 +63,13 @@ inline void save(const std::string& path, const float* data, const std::vector<i
     hdr.append(pad, ' '); hdr += '\n';
     uint16_t hlen = (uint16_t)hdr.size();
     FILE* f = fopen(path.c_str(), "wb");
-    fwrite("\x93NUMPY\x01\x00", 1, 8, f);
-    fwrite(&hlen, 2, 1, f);
-    fwrite(hdr.data(), 1, hdr.size(), f);
+    if (!f) throw std::runtime_error("npy: cannot create " + path);
+    std::unique_ptr<FILE, decltype(&fclose)> close_file(f, fclose);
+    if (fwrite("\x93NUMPY\x01\x00", 1, 8, f) != 8 || fwrite(&hlen, 2, 1, f) != 1 ||
+        fwrite(hdr.data(), 1, hdr.size(), f) != hdr.size()) throw std::runtime_error("npy: header write failed " + path);
     int64_t n = std::accumulate(shape.begin(), shape.end(), (int64_t)1, std::multiplies<int64_t>());
-    fwrite(data, sizeof(float), n, f);
-    fclose(f);
+    if (n < 0 || fwrite(data, sizeof(float), n, f) != static_cast<size_t>(n) || fflush(f) != 0)
+        throw std::runtime_error("npy: data write failed " + path);
 }
 
 } // namespace npy

@@ -23,6 +23,13 @@ constexpr int64_t kMinQuantK = 128;
 // A loaded GGUF: tensor metadata (ggml_context), the weights uploaded to a
 // backend buffer (CUDA or CPU), and a name -> tensor lookup. One per checkpoint.
 struct Model {
+    Model() = default;
+    ~Model();
+    Model(const Model&) = delete;
+    Model& operator=(const Model&) = delete;
+    Model(Model&& other) noexcept;
+    Model& operator=(Model&& other) noexcept;
+    void swap(Model& other) noexcept;
     gguf_context*         gguf   = nullptr;  // KV metadata + tensor table
     ggml_context*         meta   = nullptr;  // owns the ggml_tensor structs
     ggml_backend*         backend = nullptr; // where weights live

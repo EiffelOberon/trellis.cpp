@@ -1,0 +1,529 @@
+{
+  "environment": {
+    "commit": "6851891d706e2e26a8bb9dd99f28de851d68b64d",
+    "gpu": "NVIDIA GeForce RTX 5080, 617.14, 16303 MiB",
+    "sample_interval_ms": 50,
+    "seed": 42,
+    "resolution": 512,
+    "atlas": 1024,
+    "faces": 150000,
+    "note": "Repeated process launches: OS/file cache warm, models reloaded each run."
+  },
+  "fixtures": [
+    {
+      "fixture": "prop",
+      "input_sha256": "a33fe731d46bc34d8ade14fded885a1bf0c152e2792fbe8c10bf561c938420e7",
+      "baseline_seconds": 78.52349999989383,
+      "tensorrt_seconds": 69.16400000010617,
+      "speedup": 1.1353232895693322,
+      "baseline_total_peak_gib": 7.779296875,
+      "baseline_additional_peak_gib": 3.5419921875,
+      "tensorrt_total_peak_gib": 7.791015625,
+      "tensorrt_additional_peak_gib": 3.55078125,
+      "baseline_rss_gib": 3.0357284545898438,
+      "tensorrt_rss_gib": 3.2114219665527344
+    },
+    {
+      "fixture": "thin",
+      "input_sha256": "f7f21b63607c5ba9a0fce954273351b2ddbde26aa62bb5d565d69a4a2ebc88a2",
+      "baseline_seconds": 26.80450000008568,
+      "tensorrt_seconds": 22.96100000012666,
+      "speedup": 1.167392535165621,
+      "baseline_total_peak_gib": 7.283203125,
+      "baseline_additional_peak_gib": 3.0478515625,
+      "tensorrt_total_peak_gib": 7.458984375,
+      "tensorrt_additional_peak_gib": 3.21484375,
+      "baseline_rss_gib": 3.030364990234375,
+      "tensorrt_rss_gib": 3.2065658569335938
+    },
+    {
+      "fixture": "parts",
+      "input_sha256": "b09f3797ec8a61dff00d9b4d4026474727940a826172571784869e732b0c65bd",
+      "baseline_seconds": 50.899000000208616,
+      "tensorrt_seconds": 46.14049999997951,
+      "speedup": 1.1031306552861633,
+      "baseline_total_peak_gib": 7.484375,
+      "baseline_additional_peak_gib": 3.2490234375,
+      "tensorrt_total_peak_gib": 7.529296875,
+      "tensorrt_additional_peak_gib": 3.294921875,
+      "baseline_rss_gib": 3.0296401977539062,
+      "tensorrt_rss_gib": 3.2111587524414062
+    },
+    {
+      "fixture": "material",
+      "input_sha256": "05315f8c5f8dc1d14e702ffa59846531b5b8d6e1b12709fd945cc14ff1d28192",
+      "baseline_seconds": 31.570999999996275,
+      "tensorrt_seconds": 28.04700000002049,
+      "speedup": 1.125646236673199,
+      "baseline_total_peak_gib": 7.283203125,
+      "baseline_additional_peak_gib": 3.0419921875,
+      "tensorrt_total_peak_gib": 7.458984375,
+      "tensorrt_additional_peak_gib": 3.21875,
+      "baseline_rss_gib": 3.0300216674804688,
+      "tensorrt_rss_gib": 3.212444305419922
+    }
+  ],
+  "final_worker_job": {
+    "status": "success",
+    "error": "",
+    "seed": 42,
+    "seconds": 23.7538,
+    "idle_device_bytes": 1353121792,
+    "sampled_peak_device_bytes": 4565958656,
+    "idle_after_device_bytes": 1596391424,
+    "repaired_nonfinite": 0,
+    "clamped_guidance": 6,
+    "stages": [
+      {
+        "stage": "preprocess",
+        "backend": "CUDA0",
+        "precision": "fp16 weights, fp32 activations",
+        "seconds": 5.39474,
+        "sampled_peak_device_bytes": 3324444672
+      },
+      {
+        "stage": "conditioning",
+        "backend": "CUDA0",
+        "precision": "fp16 weights, fp32 activations",
+        "seconds": 0.177259,
+        "sampled_peak_device_bytes": 2263285760
+      },
+      {
+        "stage": "ss_flow",
+        "backend": "tensorrt",
+        "precision": "bf16",
+        "seconds": 5.75675,
+        "sampled_peak_device_bytes": 4565958656
+      },
+      {
+        "stage": "ss_decode",
+        "backend": "CUDA0",
+        "precision": "fp16 weights, fp32 activations",
+        "seconds": 0.149121,
+        "sampled_peak_device_bytes": 2298937344
+      },
+      {
+        "stage": "shape_flow",
+        "backend": "CUDA0",
+        "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+        "seconds": 1.85469,
+        "sampled_peak_device_bytes": 4226220032
+      },
+      {
+        "stage": "shape_decode",
+        "backend": "CUDA0",
+        "precision": "fp16 weights, fp32 activations",
+        "seconds": 0.831485,
+        "sampled_peak_device_bytes": 2722562048
+      },
+      {
+        "stage": "texture_flow",
+        "backend": "CUDA0",
+        "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+        "seconds": 1.38954,
+        "sampled_peak_device_bytes": 4226220032
+      },
+      {
+        "stage": "texture_decode",
+        "backend": "CUDA0",
+        "precision": "fp16 weights, fp32 activations",
+        "seconds": 0.713364,
+        "sampled_peak_device_bytes": 2722562048
+      },
+      {
+        "stage": "mesh_processing",
+        "backend": "native-cpu/cuda",
+        "precision": "fp32",
+        "seconds": 1.22411,
+        "sampled_peak_device_bytes": 1694957568
+      },
+      {
+        "stage": "bake",
+        "backend": "native-cpu",
+        "precision": "fp32",
+        "seconds": 5.95897,
+        "sampled_peak_device_bytes": 1596391424
+      },
+      {
+        "stage": "serialize",
+        "backend": "native-cpu",
+        "precision": "fp32",
+        "seconds": 0.22502,
+        "sampled_peak_device_bytes": 1596391424
+      }
+    ]
+  },
+  "engine": {
+    "schema_version": 1,
+    "model": "trellis2-ss-flow",
+    "preset": 512,
+    "block_only": false,
+    "precision": "bf16",
+    "torch": "2.11.0+cu128",
+    "onnx": "1.23.2",
+    "reference_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "checkpoint_sha256": "ca01377c485bec418076d38ee80166d32dc776d744f2553b835cba1e97a7abf6",
+    "config_sha256": "6cdfb636854f60ffcadd8c49244169cd449f34c5ccdb55b5ff7c04678f9c399e",
+    "onnx_sha256": "0b004b263c3420dc5aace23ed1cd8e1e706de4c7f277e0999ca6188472f49c14",
+    "rope_adaptation_max_abs": 0.01910257339477539,
+    "adaptation_rtol": 0.02,
+    "adaptation_atol": 0.02,
+    "inputs": {
+      "latent": [
+        1,
+        4096,
+        8
+      ],
+      "timestep": [
+        1
+      ],
+      "cond": [
+        1,
+        1029,
+        1024
+      ]
+    },
+    "outputs": {
+      "velocity": [
+        1,
+        4096,
+        8
+      ]
+    },
+    "io_dtype": "float32",
+    "timestep_scale": 1000,
+    "layout": "token-major, channel contiguous",
+    "external_data": [
+      {
+        "file": "ss_flow.onnx.data",
+        "sha256": "3f478bd678beaae4279d4b1966a185c274b796069b1ab906de1ada008c3c9dc3"
+      }
+    ],
+    "tensorrt": "11.4.0.106",
+    "engine_sha256": "9b2afd4892a270878b5fb5042e043742e2427782104645156478b84fd3fdc0bd",
+    "build_seconds": 39.89099999982864,
+    "workspace_limit_bytes": 1073741824,
+    "weight_streaming": false,
+    "context_device_memory_bytes": 307697664,
+    "gpu": "NVIDIA GeForce RTX 5080, 617.14, 12.0",
+    "attention_memory_verified": true,
+    "attention_evidence": {
+      "fused_attention_layers": 60,
+      "expected_attention_layers": 60,
+      "full_self_attention_score_bytes": 402653184,
+      "context_scratch_bytes": 307697664,
+      "passed": true,
+      "method": "TensorRT engine layer inspection plus total context-scratch bound",
+      "scope": "fixed B=1, 4096-token dense SS model; standard TensorRT operators"
+    }
+  },
+  "native_forward_vs_pytorch": {
+    "forward_000": {
+      "max_abs": 0.046698808670043945,
+      "rmse": 0.007892908282467937,
+      "relative_l2": 0.007469152569815426,
+      "passed": false
+    },
+    "forward_001": {
+      "max_abs": 0.05611896514892578,
+      "rmse": 0.008847027448615439,
+      "relative_l2": 0.008440864701402274,
+      "passed": false
+    },
+    "forward_011": {
+      "max_abs": 0.058667659759521484,
+      "rmse": 0.00870884905605423,
+      "relative_l2": 0.008718441245949077,
+      "passed": false
+    },
+    "forward_021": {
+      "max_abs": 0.16449546813964844,
+      "rmse": 0.010874975954079108,
+      "relative_l2": 0.010734655291850418,
+      "passed": false
+    },
+    "trajectory": {
+      "max_abs": 1.7968857884407043,
+      "rmse": 0.026509358150400546,
+      "relative_l2": 0.11382143352563068,
+      "passed": false
+    }
+  },
+  "tensorrt_forward_vs_pytorch": {
+    "forward_000": {
+      "max_abs": 0.03143191337585449,
+      "rmse": 0.005384481984045366,
+      "relative_l2": 0.005095399060646652,
+      "relative_max": 0.006853015742780928,
+      "pointwise_allclose": false,
+      "rtol": 0.02,
+      "atol": 0.02,
+      "max_rtol": 0.05,
+      "passed": true
+    },
+    "forward_001": {
+      "max_abs": 0.03260946273803711,
+      "rmse": 0.006428595918880852,
+      "relative_l2": 0.006133462192405909,
+      "relative_max": 0.007080026967192952,
+      "pointwise_allclose": true,
+      "rtol": 0.02,
+      "atol": 0.02,
+      "max_rtol": 0.05,
+      "passed": true
+    },
+    "forward_011": {
+      "max_abs": 0.08473348617553711,
+      "rmse": 0.00627821834423862,
+      "relative_l2": 0.006285133363912476,
+      "relative_max": 0.019415571616437925,
+      "pointwise_allclose": false,
+      "rtol": 0.02,
+      "atol": 0.02,
+      "max_rtol": 0.05,
+      "passed": true
+    },
+    "forward_021": {
+      "max_abs": 0.16214632987976074,
+      "rmse": 0.011043612604161143,
+      "relative_l2": 0.010901116010094495,
+      "relative_max": 0.03749206156695848,
+      "pointwise_allclose": false,
+      "rtol": 0.02,
+      "atol": 0.02,
+      "max_rtol": 0.05,
+      "passed": true
+    }
+  },
+  "silhouettes": [
+    {
+      "fixture": "prop",
+      "angle": 0,
+      "silhouette_iou": 0.9828892798793515,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "prop",
+      "angle": 90,
+      "silhouette_iou": 0.9868451282507356,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "prop",
+      "angle": 180,
+      "silhouette_iou": 0.9828769275238466,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "prop",
+      "angle": 300,
+      "silhouette_iou": 0.993411464161531,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 0,
+      "silhouette_iou": 0.9658517007257768,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 90,
+      "silhouette_iou": 0.9788079470198675,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 180,
+      "silhouette_iou": 0.96588058203713,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 300,
+      "silhouette_iou": 0.9644801306477954,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 0,
+      "silhouette_iou": 0.9591554953055179,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 90,
+      "silhouette_iou": 0.9733115125574369,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 180,
+      "silhouette_iou": 0.9588824459673169,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 300,
+      "silhouette_iou": 0.976062639821029,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 0,
+      "silhouette_iou": 0.9648184176394293,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 90,
+      "silhouette_iou": 0.945948736480731,
+      "passed_iou_95": false
+    },
+    {
+      "fixture": "material",
+      "angle": 180,
+      "silhouette_iou": 0.9648177046389559,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 300,
+      "silhouette_iou": 0.9500072946554491,
+      "passed_iou_95": true
+    }
+  ],
+  "baseline_repeat_silhouettes": [
+    {
+      "fixture": "prop",
+      "angle": 0,
+      "silhouette_iou": 0.9989167903861961,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "prop",
+      "angle": 90,
+      "silhouette_iou": 0.9989638464405516,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "prop",
+      "angle": 180,
+      "silhouette_iou": 0.9989422709315662,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "prop",
+      "angle": 300,
+      "silhouette_iou": 0.999145598738115,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 0,
+      "silhouette_iou": 0.9947363093430509,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 90,
+      "silhouette_iou": 0.9972029927977064,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 180,
+      "silhouette_iou": 0.99480344187616,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 300,
+      "silhouette_iou": 0.9956244302643573,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 0,
+      "silhouette_iou": 0.994658064516129,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 90,
+      "silhouette_iou": 0.9966296928327645,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 180,
+      "silhouette_iou": 0.9948125016130281,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 300,
+      "silhouette_iou": 0.995858317364159,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 0,
+      "silhouette_iou": 0.99514663362247,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 90,
+      "silhouette_iou": 0.9942054294332434,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 180,
+      "silhouette_iou": 0.9950848787741109,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 300,
+      "silhouette_iou": 0.9937051932155971,
+      "passed_iou_95": true
+    }
+  ],
+  "glint_frame_times": {
+    "isolated": {
+      "wall_frame_ms": {
+        "mean": 9.418057142857142,
+        "p95": 9.90086,
+        "maximum": 9.9541
+      },
+      "gpu_total_ms": {
+        "mean": 9.12755142857143,
+        "p95": 9.594896,
+        "maximum": 9.66333
+      }
+    },
+    "generation_overlap": {
+      "wall_frame_ms": {
+        "mean": 12.056197264289203,
+        "p95": 31.601089999999953,
+        "maximum": 53.5046
+      },
+      "gpu_total_ms": {
+        "mean": 11.493279374694675,
+        "p95": 31.248359999999984,
+        "maximum": 49.8003
+      }
+    }
+  },
+  "limits": [
+    "Device VRAM is sampled at 50 ms, not an exact allocation high-water mark.",
+    "Baseline and TensorRT measurements use separate CLI processes, warm file/driver caches, and a resident Glint scene.",
+    "Glint overlap measurements use a headless CUDA/OptiX renderer in another process, not the editor's UI job path.",
+    "Library per-stage GPU counters use cudaMemGetInfo; WDDM values differ from device-wide nvidia-smi.",
+    "One material-side silhouette is below the provisional 0.95 IoU review threshold.",
+    "The original C++ sampler clamps guidance rescaling; the unmodified Microsoft sampler does not.",
+    "Glint UI/MCP worker wiring and one-undo scene append remain a separate integration step."
+  ]
+}
