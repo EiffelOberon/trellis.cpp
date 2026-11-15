@@ -62,6 +62,14 @@ class QuantizationTest(unittest.TestCase):
                     quantize(args, dict(checkpoint_sha256="test", fixtures=[],
                                         channels={"model.blocks.0.mlp.fc1": [100, 1, 0.1]}))
                 self.assertEqual(args.output.read_bytes(), before)
+                manifest_path = source.with_suffix('.manifest.json')
+                manifest = json.loads(manifest_path.read_text())
+                manifest['fp32_residuals'] = True
+                manifest_path.write_text(json.dumps(manifest))
+                with self.assertRaisesRegex(RuntimeError, 'matching precision policy'):
+                    quantize(args, dict(checkpoint_sha256='test', fixtures=[],
+                                        channels={'model.blocks.0.mlp.fc1':[100,1,.1]}))
+                self.assertEqual(args.output.read_bytes(), before)
 
 
 if __name__ == "__main__":

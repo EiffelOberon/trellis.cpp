@@ -15,11 +15,12 @@ from onnx import helper, numpy_helper
 import torch
 from safetensors.torch import load_file
 
-from export_ss_flow import load_reference, TokenWrapper, real_rope
+from export_ss_flow import load_reference, TokenWrapper, real_rope, install_fp32_residuals
 from fetch_models import sha256
 
 
 def calibrate(args):
+    source_manifest = json.loads(args.onnx.with_suffix('.manifest.json').read_text())
     cls = load_reference(args.reference.resolve())
     config = json.loads(Path(str(args.checkpoint) + ".json").read_text())["args"]
     model = cls(**config).eval()
@@ -30,6 +31,8 @@ def calibrate(args):
     from trellis2.modules.attention.rope import RotaryPositionEmbedder
     model.rope_phases = torch.view_as_real(model.rope_phases).clone()
     RotaryPositionEmbedder.apply_rotary_embedding = staticmethod(real_rope)
+    if source_manifest.get('fp32_residuals', False):
+        install_fp32_residuals(model)
     wrapper = TokenWrapper(model).eval().cuda()
     maxima, handles = {}, []
     for name, module in wrapper.named_modules():
@@ -37,7 +40,7 @@ def calibrate(args):
             continue
 
         def observe(layer, inputs, key=name):
-            x = inputs[0].detach()
+            x = inputs[0].detach().to(layer.weight.dtype)
             current = x.abs().amax(dim=tuple(range(x.ndim - 1))).float()
             maxima[key] = torch.maximum(maxima[key], current) if key in maxima else current
 
@@ -59,6 +62,8 @@ def calibrate(args):
     for handle in handles:
         handle.remove()
     result = dict(method="per-input-channel absolute maximum over captured forwards",
+                  source_onnx_sha256=source_manifest['onnx_sha256'],
+                  fp32_residuals=source_manifest.get('fp32_residuals', False),
                   checkpoint_sha256=sha256(Path(str(args.checkpoint) + ".safetensors")),
                   fixtures=provenance, channels={name: value.cpu().tolist() for name, value in maxima.items()})
     args.scales.parent.mkdir(parents=True, exist_ok=True)
@@ -74,6 +79,9 @@ def quantize(args, calibration):
         raise RuntimeError("Expected the verified BF16 source graph")
     if calibration["checkpoint_sha256"] != source_manifest["checkpoint_sha256"]:
         raise RuntimeError("Calibration checkpoint does not match source ONNX")
+    if source_manifest.get('fp32_residuals', False) and (not calibration.get('fp32_residuals', False) or
+            calibration.get('source_onnx_sha256') != source_manifest['onnx_sha256']):
+        raise RuntimeError('FP32 residual graph requires calibration captured with the matching precision policy')
     for entry in source_manifest["external_data"]:
         if sha256(args.onnx.parent / entry["file"]) != entry["sha256"]:
             raise RuntimeError("Source external weights hash mismatch")

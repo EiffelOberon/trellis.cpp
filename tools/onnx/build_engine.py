@@ -16,6 +16,8 @@ def main():
     parser.add_argument("--workspace-mib", type=int, default=1024)
     parser.add_argument("--weight-streaming", action="store_true")
     args = parser.parse_args()
+    if args.engine.exists():
+        parser.error('Engine output already exists; choose a fresh path to preserve installed profile provenance')
     manifest = json.loads(args.onnx.with_suffix(".manifest.json").read_text())
     if sha256(args.onnx) != manifest["onnx_sha256"]:
         raise RuntimeError("ONNX graph hash does not match its manifest")
@@ -40,7 +42,8 @@ def main():
     if plan is None:
         raise RuntimeError("TensorRT engine build failed")
     args.engine.parent.mkdir(parents=True, exist_ok=True)
-    args.engine.write_bytes(bytes(plan))
+    with args.engine.open('xb') as output:
+        output.write(bytes(plan))
     del plan, config, onnx_parser, network, builder
     runtime = trt.Runtime(logger)
     engine = runtime.deserialize_cuda_engine(args.engine.read_bytes())

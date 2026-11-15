@@ -34,12 +34,32 @@ def install(source, target):
         shutil.copyfile(source, target)
 
 
+def engine_provenance(path, precision):
+    manifest_path = path.with_suffix('.manifest.json')
+    manifest = json.loads(manifest_path.read_text())
+    if (manifest.get('engine_sha256') != sha256(path) or manifest.get('precision') != precision or
+            manifest.get('preset') != 512 or manifest.get('weight_streaming') or
+            not manifest.get('attention_memory_verified')):
+        raise RuntimeError(f'Engine provenance/precision/attention gate has not passed: {path}')
+    result = {key:manifest[key] for key in (
+        'engine_sha256','onnx_sha256','checkpoint_sha256','precision','tensorrt','gpu',
+        'fp32_residuals','context_device_memory_bytes','attention_evidence') if key in manifest}
+    if 'quantization' in manifest:
+        quantization = manifest['quantization']
+        layers = quantization['layers']
+        result['quantization'] = dict(layers=len(layers), weights=sum(layer['weights'] for layer in layers),
+                                      modules=[layer['module'] for layer in layers], smooth_alpha=quantization.get('smooth_alpha'))
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--models', type=Path, default=Path('models/f16'))
     parser.add_argument('--bf16-engine', type=Path, default=Path('out/onnx-tensorrt/ss_flow.plan'))
     parser.add_argument('--int8-engine', type=Path, default=Path('out/int8/ss_flow_int8_mixed.plan'))
     args = parser.parse_args()
+    provenance = dict(bf16=engine_provenance(args.bf16_engine, 'bf16'),
+                      int8=engine_provenance(args.int8_engine, 'int8-bf16'))
     install(args.bf16_engine, args.models/'ss_flow_bf16.plan')
     install(args.int8_engine, args.models/'ss_flow_int8.plan')
     target_dir = args.models/'int8'
@@ -59,7 +79,7 @@ def main():
                            quantized_matrices=len(q8), preserved_tensors=len(tensors)-len(q8))
     manifest = dict(schema_version=1, default_profile='bf16', optimized_profile='int8', weight_streaming=False,
                     bf16_engine_sha256=sha256(args.models/'ss_flow_bf16.plan'),
-                    int8_engine_sha256=sha256(args.models/'ss_flow_int8.plan'), flows=flows,
+                    int8_engine_sha256=sha256(args.models/'ss_flow_int8.plan'), flows=flows, engine_provenance=provenance,
                     precision_note='BF16 SS default with original FP16 native stages; mixed INT8/BF16 SS and Q8_0 sparse flow matmuls in optimized mode. Norms, decoders and small projections retain floating point.')
     (args.models/'resident-profiles.json').write_text(json.dumps(manifest, indent=2)+'\n')
     print(json.dumps(manifest, indent=2))

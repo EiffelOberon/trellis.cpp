@@ -7,7 +7,7 @@ import numpy as np
 import onnxruntime as ort
 import torch
 
-from export_ss_flow import load_reference, real_rope
+from export_ss_flow import load_reference, real_rope, install_fp32_residuals
 
 
 def main():
@@ -15,6 +15,31 @@ def main():
     parser.add_argument("--reference", type=Path, required=True)
     args = parser.parse_args()
     load_reference(args.reference.resolve())
+    class ResidualToy(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.linear = torch.nn.Linear(1, 1, bias=False).to(torch.bfloat16)
+            self.linear.weight.data.fill_(1e-4)
+            self.dtype = torch.bfloat16
+
+        def forward(self, value):
+            value = value.to(self.dtype)
+            return value + self.linear(value)
+
+    toy = ResidualToy()
+    original = torch.ones(1, 1)
+    with torch.inference_mode():
+        for _ in range(10):
+            original = toy(original)
+    assert original.item() == 1.0
+    storage = toy.linear.weight.data_ptr()
+    install_fp32_residuals(toy)
+    preserved = torch.ones(1, 1)
+    with torch.inference_mode():
+        for _ in range(10):
+            preserved = toy(preserved)
+    assert preserved.dtype == torch.float32 and preserved.item() > 1.0005
+    assert toy.linear.weight.dtype == torch.bfloat16 and toy.linear.weight.data_ptr() == storage
     from trellis2.modules.attention.rope import RotaryPositionEmbedder
     torch.manual_seed(42)
     coords = torch.stack(torch.meshgrid(*[torch.arange(3)] * 3, indexing="ij"), -1).reshape(-1, 3)

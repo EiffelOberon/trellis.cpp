@@ -12,6 +12,7 @@ from pathlib import Path
 import subprocess
 import sys
 import types
+import torch.nn.functional as F
 
 import numpy as np
 import torch
@@ -55,6 +56,29 @@ def real_rope(x, phases):
     return torch.stack((even, odd), dim=-1).flatten(-2).to(x.dtype)
 
 
+def install_fp32_residuals(model):
+    """Keep BF16 parameter/GEMM/attention storage with FP32 residual arithmetic.
+
+    This is an explicit experimental export policy, not a reference-model fix.
+    Full TensorRT trajectories and memory must pass before profile promotion.
+    """
+    import trellis2.modules.attention.modules as attention
+    original_sdpa = attention.scaled_dot_product_attention
+
+    def bf16_attention(*args, **kwargs):
+        return original_sdpa(*(value.to(torch.bfloat16) if isinstance(value, torch.Tensor) else value
+                               for value in args), **kwargs).float()
+
+    def linear(self, x):
+        return F.linear(x.to(self.weight.dtype), self.weight, self.bias).float()
+
+    for module in model.modules():
+        if isinstance(module, torch.nn.Linear):
+            module.forward = types.MethodType(linear, module)
+    model.dtype = torch.float32
+    attention.scaled_dot_product_attention = bf16_attention
+
+
 class TokenWrapper(torch.nn.Module):
     def __init__(self, model):
         super().__init__()
@@ -73,9 +97,12 @@ def main():
     parser.add_argument("--precision", choices=["fp32", "fp16", "bf16"], default="bf16")
     parser.add_argument("--fixtures", type=Path, help="Captured native fixtures; otherwise deterministic synthetic tensors")
     parser.add_argument("--block-only", action="store_true", help="Export one real block as a feasibility probe")
+    parser.add_argument("--fp32-residuals", action="store_true", help="Experimental BF16 GEMM/attention with FP32 residuals and normalization outputs")
     parser.add_argument("--rtol", type=float, default=0.02, help="Whole-network adaptation tolerance (BF16 rounding accumulates)")
     parser.add_argument("--atol", type=float, default=0.02)
     args = parser.parse_args()
+    if args.fp32_residuals and (args.precision != "bf16" or args.block_only):
+        parser.error('--fp32-residuals requires a full BF16 model')
     cls = load_reference(args.reference.resolve())
     config_path = Path(str(args.checkpoint) + ".json")
     weights_path = Path(str(args.checkpoint) + ".safetensors")
@@ -122,6 +149,18 @@ def main():
     error = float(np.max(np.abs(reference - adapted)))
     if not np.allclose(reference, adapted, rtol=args.rtol, atol=args.atol):
         raise RuntimeError(f"Real-valued RoPE adaptation failed parity: max_abs={error}")
+    policy_metrics = None
+    if args.fp32_residuals:
+        install_fp32_residuals(model)
+        with torch.inference_mode():
+            candidate = wrapper(*gpu_sample).float().cpu().numpy()
+        relative_l2 = float(np.linalg.norm(candidate-reference) / max(np.linalg.norm(reference), 1e-30))
+        max_abs = float(np.max(np.abs(candidate-reference)))
+        policy_metrics = dict(relative_l2=relative_l2, max_abs=max_abs,
+                              gate='L2 <= 2%; max error <= 0.02 + 5% peak reference signal')
+        if not np.isfinite(candidate).all() or relative_l2 > .02 or max_abs > .02 + .05 * float(np.max(np.abs(reference))):
+            raise RuntimeError(f'FP32 residual export policy failed the forward gate: {policy_metrics}')
+        print(f'FP32 residual policy vs original reference: {policy_metrics}', flush=True)
     for name, tensor in zip(["latent", "timestep", "cond"], sample):
         np.save(fixtures / f"{name}.npy", tensor.numpy())
     np.save(fixtures / "velocity.npy", reference)
@@ -139,6 +178,7 @@ def main():
     onnx.checker.check_model(str(args.output))
     manifest = dict(schema_version=1, model="trellis2-ss-flow", preset=512,
                     block_only=args.block_only, precision=args.precision,
+                    fp32_residuals=args.fp32_residuals, residual_policy_validation=policy_metrics,
                     torch=torch.__version__, onnx=onnx.__version__,
                     reference_commit=subprocess.check_output(
                         ["git", "-C", str(args.reference), "rev-parse", "HEAD"], text=True).strip(),
