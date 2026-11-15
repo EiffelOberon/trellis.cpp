@@ -32,7 +32,7 @@ struct Model {
     void swap(Model& other) noexcept;
     gguf_context*         gguf   = nullptr;  // KV metadata + tensor table
     ggml_context*         meta   = nullptr;  // owns the ggml_tensor structs
-    ggml_backend*         backend = nullptr; // where weights live
+    ggml_backend*         backend = nullptr; // compute backend; host_weights may keep data on CPU
     ggml_backend_buffer*  buffer = nullptr;  // weights in the backend's default buffer
     // Optional backend-specific buffer for repacked quantized matrix weights.
     ggml_backend_buffer*  buffer_repack = nullptr;
@@ -46,9 +46,10 @@ struct Model {
     std::string arch;          // general.architecture
     std::string config_json;   // trellis.config_json (raw model config)
     bool on_gpu = false;
+    bool host_weights = false; // flow runner stages these unchanged weights onto the GPU
 
     // gpu < 0 -> CPU backend; otherwise CUDA device index.
-    static Model load(const std::string& path, int gpu = 0);
+    static Model load(const std::string& path, int gpu = 0, bool host_weights = false);
 
     ggml_tensor* get(const std::string& name) const;        // throws if missing
     ggml_tensor* try_get(const std::string& name) const;    // nullptr if missing

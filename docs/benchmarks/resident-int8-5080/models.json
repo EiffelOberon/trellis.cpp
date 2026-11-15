@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "default_profile": "bf16",
+  "optimized_profile": "int8",
+  "weight_streaming": false,
+  "bf16_engine_sha256": "9b2afd4892a270878b5fb5042e043742e2427782104645156478b84fd3fdc0bd",
+  "int8_engine_sha256": "8a67f953f452bb2f919e94468579da5af8fde55a7e353e740fbda9d1f21c0bcd",
+  "flows": {
+    "shape_flow_512.gguf": {
+      "source_sha256": "fef397f3600e2fab327a98b3edd3cc8377e9741eef870f3ea3f40235875828fb",
+      "quantized_sha256": "86dfe09a00e45c0d82612d21a4d0b447218e524e348e380cd5193c5dc2e83b5f",
+      "source_bytes": 2586636032,
+      "quantized_bytes": 1376344832,
+      "quantized_matrices": 214,
+      "preserved_tensors": 426
+    },
+    "tex_flow_512.gguf": {
+      "source_sha256": "0e81b8213191369dc023eb270650f0ccded29f39bf0bbb7a1fe5d4bcefc15b79",
+      "quantized_sha256": "0c221a8d254b0a08c3cd336454397afb263519a9ed82bf6ba78b220e59ae7a77",
+      "source_bytes": 2586734336,
+      "quantized_bytes": 1376443136,
+      "quantized_matrices": 214,
+      "preserved_tensors": 426
+    }
+  },
+  "precision_note": "BF16 SS default with original FP16 native stages; mixed INT8/BF16 SS and Q8_0 sparse flow matmuls in optimized mode. Norms, decoders and small projections retain floating point."
+}

@@ -248,7 +248,7 @@ static int restore_orig_shapes(gguf_context* gguf, ggml_context* meta) {
     return fixed;
 }
 
-Model Model::load(const std::string& path, int gpu) {
+Model Model::load(const std::string& path, int gpu, bool host_weights) {
     ScopedTimer _t("load " + path.substr(path.find_last_of("/\\") + 1));
     Model m;
 
@@ -294,6 +294,9 @@ Model Model::load(const std::string& path, int gpu) {
 
     m.backend = shared_backend(gpu);
     m.on_gpu  = !ggml_backend_is_cpu(m.backend);
+    m.host_weights = host_weights;
+    if (host_weights && (!m.on_gpu || std::strncmp(ggml_backend_name(m.backend), "CUDA", 4) != 0))
+        throw std::invalid_argument("flow weight streaming currently requires CUDA");
 
     // Backends can expose an extra buffer type that performs device-specific weight
     // repacking during upload. Hexagon requires this for its tiled quantized matmuls.
@@ -334,10 +337,12 @@ Model Model::load(const std::string& path, int gpu) {
 
     const int64_t n_tensors = gguf_get_n_tensors(m.gguf);
     size_t n_repack = 0;
+    if (host_weights) repack_buft = nullptr;
     if (!repack_buft) {
         // Preserve the existing allocation path for CPU, CUDA, Vulkan, and backends
         // without an extra weight buffer.
-        m.buffer = ggml_backend_alloc_ctx_tensors(meta, m.backend);
+        m.buffer = host_weights ? ggml_backend_alloc_ctx_tensors_from_buft(meta, ggml_backend_cpu_buffer_type())
+                                : ggml_backend_alloc_ctx_tensors(meta, m.backend);
         if (!m.buffer) throw std::runtime_error("failed to allocate tensor buffer for " + path);
         ggml_backend_buffer_set_usage(m.buffer, GGML_BACKEND_BUFFER_USAGE_WEIGHTS);
     } else {
@@ -445,6 +450,7 @@ void Model::swap(Model& other) noexcept {
     swap(ctx_repack, other.ctx_repack); swap(sched, other.sched);
     swap(tensors, other.tensors); swap(arch, other.arch);
     swap(config_json, other.config_json); swap(on_gpu, other.on_gpu);
+    swap(host_weights, other.host_weights);
 }
 
 void Model::free() {

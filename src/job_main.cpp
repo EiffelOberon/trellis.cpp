@@ -18,12 +18,15 @@ static std::string quote_json(const std::string& value) {
     return result + '"';
 }
 
-static void metrics(const std::string& path, const trellis::JobResult& result) {
+static void metrics(const std::string& path, const trellis::JobResult& result, const trellis::JobRequest& request) {
     std::ofstream out(path);
     const auto& m = result.metrics;
     out << "{\n  \"status\": " << quote_json(result.status == trellis::JobStatus::Success ? "success" :
         result.status == trellis::JobStatus::Cancelled ? "cancelled" : "failed")
         << ",\n  \"error\": " << quote_json(result.error) << ",\n  \"seed\": " << m.seed
+        << ",\n  \"profile\": " << quote_json(request.profile)
+        << ",\n  \"stream_flow_blocks\": " << request.stream_flow_blocks
+        << ",\n  \"ss_weight_budget_mib\": " << request.ss_weight_budget_mib
         << ",\n  \"seconds\": " << m.seconds << ",\n  \"idle_device_bytes\": " << m.idle_device_bytes
         << ",\n  \"sampled_peak_device_bytes\": " << m.sampled_peak_device_bytes
         << ",\n  \"idle_after_device_bytes\": " << m.idle_after_device_bytes
@@ -42,7 +45,7 @@ static void metrics(const std::string& path, const trellis::JobResult& result) {
 
 int main(int argc, char** argv) {
     if (argc < 4) {
-        fprintf(stderr, "usage: trellis-job IMAGE OUTPUT.glb MODELS [--ss-engine ENGINE] [--capture-dir DIR] [--repeat N] [--exercise-lifecycle]\n");
+        fprintf(stderr, "usage: trellis-job IMAGE OUTPUT.glb MODELS [--profile bf16|int8|native] [--ss-engine ENGINE] [--capture-dir DIR] [--repeat N] [--exercise-lifecycle]\nDefault: resident bf16. int8 is the experimental resident optimized profile.\n");
         return 2;
     }
     try {
@@ -55,8 +58,11 @@ int main(int argc, char** argv) {
         for (int i = 4; i < argc; ++i) {
             const std::string arg = argv[i];
             if (arg == "--exercise-lifecycle") lifecycle = true;
+            else if (arg == "--profile" && i + 1 < argc) request.profile = argv[++i];
             else if (arg == "--ss-engine" && i + 1 < argc) request.ss_engine = argv[++i];
             else if (arg == "--capture-dir" && i + 1 < argc) request.capture_dir = argv[++i];
+            else if (arg == "--stream-flow-blocks" && i + 1 < argc) request.stream_flow_blocks = std::stoi(argv[++i]);
+            else if (arg == "--ss-weight-budget-mib" && i + 1 < argc) request.ss_weight_budget_mib = std::stoi(argv[++i]);
             else if (arg == "--repeat" && i + 1 < argc) repeats = std::stoi(argv[++i]);
             else throw std::invalid_argument("Unknown/incomplete argument: " + arg);
         }
@@ -76,7 +82,7 @@ int main(int argc, char** argv) {
                         if (cancel_job && p.stage == "ss_flow" && p.step >= 1) cancel = true;
                     });
                     const std::string stem = std::string(argv[2]) + ".job" + std::to_string(i);
-                    metrics(stem + ".json", result);
+                    metrics(stem + ".json", result, job);
                     const auto expected = cancel_job ? trellis::JobStatus::Cancelled : fail_job ? trellis::JobStatus::Failed : trellis::JobStatus::Success;
                     if (result.status != expected) throw std::runtime_error("Unexpected job status: " + result.error);
                     if (result.status == trellis::JobStatus::Success) {

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "model": "trellis2-ss-flow",
+  "preset": 512,
+  "block_only": false,
+  "precision": "bf16",
+  "torch": "2.11.0+cu128",
+  "onnx": "1.23.2",
+  "reference_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+  "checkpoint_sha256": "ca01377c485bec418076d38ee80166d32dc776d744f2553b835cba1e97a7abf6",
+  "config_sha256": "6cdfb636854f60ffcadd8c49244169cd449f34c5ccdb55b5ff7c04678f9c399e",
+  "onnx_sha256": "0b004b263c3420dc5aace23ed1cd8e1e706de4c7f277e0999ca6188472f49c14",
+  "rope_adaptation_max_abs": 0.01910257339477539,
+  "adaptation_rtol": 0.02,
+  "adaptation_atol": 0.02,
+  "inputs": {
+    "latent": [
+      1,
+      4096,
+      8
+    ],
+    "timestep": [
+      1
+    ],
+    "cond": [
+      1,
+      1029,
+      1024
+    ]
+  },
+  "outputs": {
+    "velocity": [
+      1,
+      4096,
+      8
+    ]
+  },
+  "io_dtype": "float32",
+  "timestep_scale": 1000,
+  "layout": "token-major, channel contiguous",
+  "fixtures": "D:\\Project\\trellis.cpp\\out\\onnx-tensorrt\\ss_flow_fixtures",
+  "external_data": [
+    {
+      "file": "ss_flow.onnx.data",
+      "sha256": "3f478bd678beaae4279d4b1966a185c274b796069b1ab906de1ada008c3c9dc3"
+    }
+  ],
+  "tensorrt": "11.4.0.106",
+  "engine_sha256": "682d40ba8eeba7568ddc584db90878e537113107101ff8ccc249735c0df41ec7",
+  "build_seconds": 39.09400000004098,
+  "workspace_limit_bytes": 1073741824,
+  "weight_streaming": true,
+  "context_device_memory_bytes": 307697664,
+  "gpu": "NVIDIA GeForce RTX 5080, 617.14, 12.0",
+  "attention_memory_verified": false,
+  "attention_evidence": {
+    "fused_attention_layers": 60,
+    "expected_attention_layers": 60,
+    "full_self_attention_score_bytes": 402653184,
+    "context_scratch_bytes": 307697664,
+    "passed": true,
+    "method": "TensorRT engine layer inspection plus total context-scratch bound",
+    "scope": "fixed B=1, 4096-token dense SS model; standard TensorRT operators"
+  }
+}

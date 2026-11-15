@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "executable_sha256": "408015e92273fd038444feb1042fc78ba44f644e7d4607253bb7cab8bf0ba547",
+  "execution_passed": true,
+  "quality_acceptance_passed": false,
+  "default_profile": "bf16",
+  "optimized_profile": "int8",
+  "weight_streaming": false,
+  "quantizer_regression_passed": true,
+  "cpu_contract_passed": true,
+  "cuda_contract_passed": true,
+  "streaming_engine_rejection": {
+    "passed": true,
+    "error": "Resident profile requires an engine built without weight streaming"
+  },
+  "assets": [
+    "sofa",
+    "chest"
+  ],
+  "glbs_validated": 4,
+  "nonfinite_repairs": 0,
+  "quality_note": "All eight silhouettes pass 95%; SS occupancy fails 95% on both fixtures. INT8 is experimental.",
+  "renders": {
+    "bf16": {
+      "blender": "5.1.1",
+      "engine": "BLENDER_EEVEE",
+      "samples": 256,
+      "resolution": [
+        1920,
+        1280
+      ],
+      "camera_and_lights_match_bf16": true,
+      "dimensions_m": [
+        2.4000000953674316,
+        1.2198858261108398,
+        0.9785742163658142
+      ],
+      "triangles": 142946,
+      "seconds": 4.170727399643511,
+      "render": "D:\\Project\\trellis.cpp\\out\\resident-int8\\renders\\bf16\\sofa-eevee-bf16.png",
+      "blend": "D:\\Project\\trellis.cpp\\out\\resident-int8\\renders\\bf16\\sofa-studio-bf16.blend"
+    },
+    "int8": {
+      "blender": "5.1.1",
+      "engine": "BLENDER_EEVEE",
+      "samples": 256,
+      "resolution": [
+        1920,
+        1280
+      ],
+      "camera_and_lights_match_bf16": true,
+      "dimensions_m": [
+        2.4000000953674316,
+        1.2237030267715454,
+        0.9688714742660522
+      ],
+      "triangles": 145099,
+      "seconds": 4.079674300272018,
+      "render": "D:\\Project\\trellis.cpp\\out\\resident-int8\\renders\\int8\\sofa-eevee-int8.png",
+      "blend": "D:\\Project\\trellis.cpp\\out\\resident-int8\\renders\\int8\\sofa-studio-int8.blend"
+    }
+  }
+}

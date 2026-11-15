@@ -1,0 +1,283 @@
+{
+  "input_sha256": "a33fe731d46bc34d8ade14fded885a1bf0c152e2792fbe8c10bf561c938420e7",
+  "executable_sha256": "50fd113a249ff2c325eb839e598319758173d9a6957a65d3522a18f5ed9e10c0",
+  "commit": "45edf32c2c5031932b735a9db38accba8e03d704",
+  "baseline_engine_sha256": "682d40ba8eeba7568ddc584db90878e537113107101ff8ccc249735c0df41ec7",
+  "stream_engine_sha256": "682d40ba8eeba7568ddc584db90878e537113107101ff8ccc249735c0df41ec7",
+  "gpu": "NVIDIA GeForce RTX 5080, 617.14",
+  "sample_ms": {
+    "worker_cuda": 20,
+    "device_wide": 50,
+    "process_rss": 20
+  },
+  "note": "Fresh sequential processes; seed 42, 512 preset, 12 steps, 150K faces, 1K PNG atlas. Working tree may contain uncommitted changes.",
+  "resident": {
+    "command": [
+      "D:\\Project\\trellis.cpp\\build-baseline\\trellis-job.exe",
+      "D:\\Project\\trellis.cpp\\assets\\showcase\\chest\\chest.png",
+      "D:\\Project\\trellis.cpp\\out\\optimization\\chest-accepted\\resident\\asset.glb",
+      "D:\\Project\\trellis.cpp\\models\\f16",
+      "--ss-engine",
+      "D:\\Project\\trellis.cpp\\out\\optimization\\ss_flow_stream.plan",
+      "--capture-dir",
+      "D:\\Project\\trellis.cpp\\out\\optimization\\chest-accepted\\resident\\capture"
+    ],
+    "returncode": 0,
+    "process_seconds": 61.96900000004098,
+    "peak_rss_bytes": 5975298048,
+    "device_wide_idle_bytes": 2897215488,
+    "device_wide_peak_bytes": 6710886400,
+    "worker": {
+      "status": "success",
+      "error": "",
+      "seed": 42,
+      "seconds": 61.7947,
+      "idle_device_bytes": 1353121792,
+      "sampled_peak_device_bytes": 4928765952,
+      "idle_after_device_bytes": 2049376256,
+      "repaired_nonfinite": 0,
+      "clamped_guidance": 4,
+      "stages": [
+        {
+          "stage": "preprocess",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 5.13334,
+          "sampled_peak_device_bytes": 3324444672
+        },
+        {
+          "stage": "conditioning",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.167462,
+          "sampled_peak_device_bytes": 2263285760
+        },
+        {
+          "stage": "ss_flow",
+          "backend": "tensorrt",
+          "precision": "bf16",
+          "seconds": 5.57098,
+          "sampled_peak_device_bytes": 4540792832
+        },
+        {
+          "stage": "ss_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.139626,
+          "sampled_peak_device_bytes": 2298937344
+        },
+        {
+          "stage": "shape_flow",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+          "seconds": 11.2876,
+          "sampled_peak_device_bytes": 4509335552
+        },
+        {
+          "stage": "shape_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 7.7488,
+          "sampled_peak_device_bytes": 4500946944
+        },
+        {
+          "stage": "texture_flow",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+          "seconds": 7.01679,
+          "sampled_peak_device_bytes": 4928765952
+        },
+        {
+          "stage": "texture_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 5.46721,
+          "sampled_peak_device_bytes": 4500946944
+        },
+        {
+          "stage": "mesh_processing",
+          "backend": "native-cpu/cuda",
+          "precision": "fp32",
+          "seconds": 16.2364,
+          "sampled_peak_device_bytes": 2951151616
+        },
+        {
+          "stage": "bake",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 2.64657,
+          "sampled_peak_device_bytes": 2049376256
+        },
+        {
+          "stage": "serialize",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 0.295836,
+          "sampled_peak_device_bytes": 2049376256
+        }
+      ]
+    }
+  },
+  "streamed": {
+    "command": [
+      "D:\\Project\\trellis.cpp\\build-baseline\\trellis-job.exe",
+      "D:\\Project\\trellis.cpp\\assets\\showcase\\chest\\chest.png",
+      "D:\\Project\\trellis.cpp\\out\\optimization\\chest-accepted\\streamed\\asset.glb",
+      "D:\\Project\\trellis.cpp\\models\\f16",
+      "--ss-engine",
+      "D:\\Project\\trellis.cpp\\out\\optimization\\ss_flow_stream.plan",
+      "--capture-dir",
+      "D:\\Project\\trellis.cpp\\out\\optimization\\chest-accepted\\streamed\\capture",
+      "--stream-flow-blocks",
+      "5",
+      "--ss-weight-budget-mib",
+      "1024"
+    ],
+    "returncode": 0,
+    "process_seconds": 64.98499999986961,
+    "peak_rss_bytes": 6042218496,
+    "device_wide_idle_bytes": 2898264064,
+    "device_wide_peak_bytes": 5264900096,
+    "worker": {
+      "status": "success",
+      "error": "",
+      "seed": 42,
+      "seconds": 64.7158,
+      "idle_device_bytes": 1353121792,
+      "sampled_peak_device_bytes": 3481731072,
+      "idle_after_device_bytes": 1694957568,
+      "repaired_nonfinite": 0,
+      "clamped_guidance": 4,
+      "stages": [
+        {
+          "stage": "preprocess",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 5.20023,
+          "sampled_peak_device_bytes": 3324444672
+        },
+        {
+          "stage": "conditioning",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.169621,
+          "sampled_peak_device_bytes": 2263285760
+        },
+        {
+          "stage": "ss_flow",
+          "backend": "tensorrt",
+          "precision": "bf16",
+          "seconds": 5.44393,
+          "sampled_peak_device_bytes": 3236364288
+        },
+        {
+          "stage": "ss_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.146878,
+          "sampled_peak_device_bytes": 2298937344
+        },
+        {
+          "stage": "shape_flow",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+          "seconds": 12.805,
+          "sampled_peak_device_bytes": 2452029440
+        },
+        {
+          "stage": "shape_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 7.89558,
+          "sampled_peak_device_bytes": 3481731072
+        },
+        {
+          "stage": "texture_flow",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+          "seconds": 8.24146,
+          "sampled_peak_device_bytes": 2514944000
+        },
+        {
+          "stage": "texture_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 5.60826,
+          "sampled_peak_device_bytes": 3481731072
+        },
+        {
+          "stage": "mesh_processing",
+          "backend": "native-cpu/cuda",
+          "precision": "fp32",
+          "seconds": 16.1629,
+          "sampled_peak_device_bytes": 2470903808
+        },
+        {
+          "stage": "bake",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 2.65348,
+          "sampled_peak_device_bytes": 1694957568
+        },
+        {
+          "stage": "serialize",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 0.290295,
+          "sampled_peak_device_bytes": 1694957568
+        }
+      ]
+    }
+  },
+  "parity": {
+    "ss_final": {
+      "same_shape": true,
+      "finite": true,
+      "exact": true,
+      "relative_l2": 0.0,
+      "maxabs": 0.0,
+      "passed": true
+    },
+    "ss_logits": {
+      "same_shape": true,
+      "finite": true,
+      "exact": true,
+      "relative_l2": 0.0,
+      "maxabs": 0.0,
+      "passed": true
+    },
+    "shape_latent": {
+      "same_shape": true,
+      "finite": true,
+      "exact": true,
+      "relative_l2": 0.0,
+      "maxabs": 0.0,
+      "passed": true
+    },
+    "texture_latent": {
+      "same_shape": true,
+      "finite": true,
+      "exact": true,
+      "relative_l2": 0.0,
+      "maxabs": 0.0,
+      "passed": true
+    },
+    "shape_features": {
+      "same_shape": true,
+      "finite": true,
+      "exact": true,
+      "relative_l2": 0.0,
+      "maxabs": 0.0,
+      "passed": true
+    },
+    "texture_features": {
+      "same_shape": true,
+      "finite": true,
+      "exact": true,
+      "relative_l2": 0.0,
+      "maxabs": 0.0,
+      "passed": true
+    }
+  },
+  "parity_passed": true
+}

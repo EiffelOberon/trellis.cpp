@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-15",
+  "executable_sha256": "50fd113a249ff2c325eb839e598319758173d9a6957a65d3522a18f5ed9e10c0",
+  "flow_regression": {
+    "passed": true,
+    "exact_outputs": 24,
+    "block_group_sizes": [
+      1,
+      5,
+      30
+    ],
+    "models": [
+      "shape_flow_512",
+      "tex_flow_512"
+    ]
+  },
+  "decoder_regression": {
+    "passed": true,
+    "exact_outputs": 2,
+    "block_counts": [
+      1,
+      4
+    ],
+    "voxels": 65667,
+    "tile_rows": 65536
+  },
+  "full_job_parity": {
+    "passed": true,
+    "assets": [
+      "sofa",
+      "chest"
+    ],
+    "exact_arrays_per_asset": 6
+  },
+  "cpu_contract_passed": true,
+  "cuda_contract_passed": true,
+  "ss_pytorch_reference": {
+    "engine_sha256": "682d40ba8eeba7568ddc584db90878e537113107101ff8ccc249735c0df41ec7",
+    "forwards": {
+      "forward_000": {
+        "max_abs": 0.03167462348937988,
+        "rmse": 0.00544179485443378,
+        "relative_l2": 0.005149634908552803,
+        "relative_max": 0.006905933177651418,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "returncode": 0
+      },
+      "forward_001": {
+        "max_abs": 0.031610965728759766,
+        "rmse": 0.006448266486599138,
+        "relative_l2": 0.006152229693883008,
+        "relative_max": 0.006863237570534201,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "returncode": 0
+      },
+      "forward_011": {
+        "max_abs": 0.06981480121612549,
+        "rmse": 0.0060568048584230556,
+        "relative_l2": 0.006063476006583288,
+        "relative_max": 0.015997149817381155,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "returncode": 0
+      },
+      "forward_021": {
+        "max_abs": 0.13532090187072754,
+        "rmse": 0.01081656945504627,
+        "relative_l2": 0.010677002416426254,
+        "relative_max": 0.031289388961167834,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "returncode": 0
+      }
+    },
+    "passed": true
+  },
+  "glb_validation": [
+    {
+      "path": "out\\optimization\\sofa-accepted\\resident\\asset.glb",
+      "vertices": 84527,
+      "triangles": 144186,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 6618848,
+      "valid": true
+    },
+    {
+      "path": "out\\optimization\\sofa-accepted\\streamed\\asset.glb",
+      "vertices": 85601,
+      "triangles": 145066,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 6624740,
+      "valid": true
+    },
+    {
+      "path": "out\\optimization\\chest-accepted\\resident\\asset.glb",
+      "vertices": 101602,
+      "triangles": 143056,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 9565056,
+      "valid": true
+    },
+    {
+      "path": "out\\optimization\\chest-accepted\\streamed\\asset.glb",
+      "vertices": 100967,
+      "triangles": 142356,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 9499460,
+      "valid": true
+    }
+  ],
+  "eevee_render": {
+    "blender": "5.1.1",
+    "engine": "BLENDER_EEVEE",
+    "samples": 256,
+    "resolution": [
+      1920,
+      1280
+    ],
+    "camera_and_lights_match_bf16": true,
+    "dimensions_m": [
+      2.3999998569488525,
+      1.2198824882507324,
+      0.9786292314529419
+    ],
+    "triangles": 143972,
+    "seconds": 4.200310499873012,
+    "render": "D:\\Project\\trellis.cpp\\out\\sofa-optimized\\sofa-eevee-optimized.png",
+    "blend": "D:\\Project\\trellis.cpp\\out\\sofa-optimized\\sofa-studio-optimized.blend"
+  },
+  "limitations": [
+    "Single paired run per asset and seed 42.",
+    "Same-engine resident/streamed parity is distinct from engine rebuild parity.",
+    "VRAM measurements precede Blender and exclude Glint integration.",
+    "Long-lived repeated worker and other GPU/preset acceptance remains open."
+  ]
+}

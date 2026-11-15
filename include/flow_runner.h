@@ -17,6 +17,7 @@ namespace trellis {
 struct Model;
 class GraphExec;
 struct RunControl;
+class StreamedDit;
 
 struct SamplerParams {
     int   steps             = 12;
@@ -49,12 +50,14 @@ struct FlowCond {
 class DitRunner {
 public:
     DitRunner(const Model& m, const DiTParams& p, int N, int n_cond,
-              const std::vector<float>& rope_cos, const std::vector<float>& rope_sin);
+              const std::vector<float>& rope_cos, const std::vector<float>& rope_sin,
+              int stream_blocks = 0);
     ~DitRunner();
     // xt: [in_ch*N] channel-major. Returns velocity [out_ch*N].
     std::vector<float> forward(const std::vector<float>& xt, float t_scaled, const FlowCond& c);
     int N() const { return N_; }
 private:
+    std::unique_ptr<StreamedDit> streamed_;
     const Model& m_; DiTParams p_; int N_, Lc_;
     ggml_context* ctx_ = nullptr; ggml_cgraph* g_ = nullptr;
     // Owns graph allocation and execution for both direct and scheduled backends.
@@ -70,7 +73,7 @@ private:
 DitRunner* make_dense_runner(const Model& m, const DiTParams& p, int R, int n_cond);
 // Sparse factory: RoPE from real voxel coords [N][3]. N = coords.size().
 DitRunner* make_sparse_runner(const Model& m, const DiTParams& p,
-                              const std::vector<std::array<int,3>>& coords, int n_cond);
+                              const std::vector<std::array<int,3>>& coords, int n_cond, int stream_blocks = 0);
 
 // FlowEuler guidance-interval sampler over an arbitrary forward functor.
 using FlowFwd = std::function<std::vector<float>(const std::vector<float>&, float, const FlowCond&)>;

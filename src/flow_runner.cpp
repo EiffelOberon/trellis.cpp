@@ -3,6 +3,7 @@
 #include "trellis_debug.h"
 #include "trellis_sched.h"
 #include "job_control.h"
+#include "streamed_dit.h"
 #include "ggml.h"
 #include "ggml-backend.h"
 #include "ggml-alloc.h"
@@ -38,8 +39,13 @@ static void timestep_embedding(float t, std::vector<float>& out) {
 }
 
 DitRunner::DitRunner(const Model& m, const DiTParams& p, int N, int n_cond,
-                     const std::vector<float>& rcos, const std::vector<float>& rsin)
+                     const std::vector<float>& rcos, const std::vector<float>& rsin, int stream_blocks)
     : m_(m), p_(p), N_(N), Lc_(n_cond) {
+    if (stream_blocks) {
+        streamed_ = std::make_unique<StreamedDit>(m, p, N, n_cond, rcos, rsin, stream_blocks);
+        return;
+    }
+    if (m.host_weights) throw std::invalid_argument("host flow weights require a streamed runner");
     const int half = p_.head_dim / 2;
     // Query-chunked FlashAttention creates several small mask/FA nodes per attention instead
     // of one giant quadratic mask. Give the graph generous HOST metadata headroom; this does
@@ -89,6 +95,12 @@ DitRunner::~DitRunner() {
 
 std::vector<float> DitRunner::forward(const std::vector<float>& xt, float t_scaled, const FlowCond& c) {
     std::vector<float> tf; timestep_embedding(t_scaled, tf);
+    if (streamed_) {
+        auto out = streamed_->forward(xt, tf, c);
+        for (float value : out) if (!std::isfinite(value))
+            throw std::runtime_error("streamed DiT: non-finite output");
+        return out;
+    }
     ggml_backend_tensor_set(gh0_,  xt.data(), 0, xt.size() * 4);
     ggml_backend_tensor_set(gtf_,  tf.data(), 0, tf.size() * 4);
     ggml_backend_tensor_set(gcond_, c.cond,   0, (size_t)p_.d_cond * Lc_ * 4);
@@ -184,11 +196,11 @@ DitRunner* make_dense_runner(const Model& m, const DiTParams& p, int R, int n_co
 }
 
 DitRunner* make_sparse_runner(const Model& m, const DiTParams& p,
-                              const std::vector<std::array<int,3>>& coords, int n_cond) {
+                              const std::vector<std::array<int,3>>& coords, int n_cond, int stream_blocks) {
     std::vector<float> rcos, rsin;
     fill_rope(p, (int)coords.size(), [&coords](int tok, int& cx, int& cy, int& cz) {
         cx = coords[tok][0]; cy = coords[tok][1]; cz = coords[tok][2]; }, rcos, rsin);
-    return new DitRunner(m, p, (int)coords.size(), n_cond, rcos, rsin);
+    return new DitRunner(m, p, (int)coords.size(), n_cond, rcos, rsin, stream_blocks);
 }
 
 std::vector<float> sample_flow(const FlowFwd& fwd, std::vector<float> sample,

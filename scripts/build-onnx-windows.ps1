@@ -22,7 +22,7 @@ try {
     if (-not (Test-Path -LiteralPath (Join-Path $sdk 'include\NvInfer.h'))) { throw 'TensorRT headers not found' }
     cmake -S . -B $BuildDir -G Ninja -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=120 -DGGML_OPENMP=OFF -DTRELLIS_TENSORRT=ON "-DTENSORRT_ROOT=$sdk"
     if ($LASTEXITCODE) { throw 'CMake configure failed' }
-    cmake --build $BuildDir --target trellis-cli trellis-server trellis-job trellis-test-job trellis-test-trt trellis-compare-ss --parallel $Parallel
+    cmake --build $BuildDir --target trellis-cli trellis-server trellis-job trellis-test-job trellis-test-trt trellis-compare-ss trellis-test-streamed-flow trellis-test-sparse-chunk --parallel $Parallel
     if ($LASTEXITCODE) { throw 'Native build failed' }
     if ($Test) {
         # CUDA 13 moved Windows runtime DLLs into bin/x64.

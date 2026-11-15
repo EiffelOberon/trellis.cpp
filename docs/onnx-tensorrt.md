@@ -7,6 +7,8 @@ and PBR baking remain in C++/GGML. Python is used offline for export and analysi
 
 The tested engine uses **BF16**, with FP32 inputs and outputs. The FP16 probe
 produced nonfinite predictions and is not an accepted runtime configuration.
+An [INT8 follow-up experiment](int8-tensorrt.md) runs with mixed precision but
+fails full-trajectory quality gates; BF16 remains the reference configuration.
 FP16 and BF16 both store two bytes per scalar; switching between them does not
 halve weight storage.
 
@@ -226,10 +228,14 @@ was prebuilt locally; its source revision is not pinned by this experiment.
 
 ## Next decision
 
+Current [resident profiles](resident-profiles.md) use BF16 by default and
+experimental INT8 optimization, both without weight streaming. The separate
+[CUDA memory experiment](low-vram-cuda.md) records historical weight streaming
+and the smaller decoder working sets retained by the resident profiles.
+
 The standalone four-fixture workload is below the initial 6 GiB additional
 target on the 5080. Stage-by-stage loading and fused attention already avoid
-the larger obvious allocations. FP8, weight streaming, and tiled decode are
-therefore deferred until a measured workload needs them. Before a second ONNX
+the larger obvious allocations. FP8 remains deferred. Before a second ONNX
 port, profile representative assets in Glint: mesh/bake and sparse shape work
 are now significant residual costs, and the current tests do not justify a
 specific second export yet.

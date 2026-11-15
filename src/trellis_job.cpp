@@ -80,8 +80,15 @@ JobResult run_job(const JobRequest& request, const std::atomic_bool* cancel,
     try {
         control.check_cancel();
         if (request.resolution != 512 || request.atlas < kAtlasMin || request.atlas > kAtlasMax ||
-            request.faces < kQemFacesMin || request.steps < 1 || request.steps > 1000 || request.gpu < 0)
+            request.faces < kQemFacesMin || request.steps < 1 || request.steps > 1000 || request.gpu < 0 ||
+            request.stream_flow_blocks < 0 || request.stream_flow_blocks > 30 ||
+            (request.stream_flow_blocks && 30 % request.stream_flow_blocks) || request.ss_weight_budget_mib < -1 ||
+            (request.ss_weight_budget_mib >= 0 && request.ss_engine.empty()))
             throw std::invalid_argument("Invalid 512-preset job settings");
+        if (request.profile != "bf16" && request.profile != "int8" && request.profile != "native")
+            throw std::invalid_argument("profile must be bf16, int8, or native");
+        if (request.profile != "native" && (request.stream_flow_blocks || request.ss_weight_budget_mib != -1))
+            throw std::invalid_argument("bf16/int8 profiles require resident weights; streaming is disabled");
         int width = 0, height = 0, channels = 0;
         if (request.image.empty() || request.image.size() > INT_MAX ||
             !stbi_info_from_memory(request.image.data(), static_cast<int>(request.image.size()), &width, &height, &channels))
@@ -93,6 +100,9 @@ JobResult run_job(const JobRequest& request, const std::atomic_bool* cancel,
         params.models = request.models; params.seed = request.seed; params.gpu = request.gpu;
         params.set_res(512); params.tex = request.atlas; params.faces = request.faces;
         params.steps = request.steps; params.webp = 0; params.ss_engine = request.ss_engine;
+        params.profile = request.profile;
+        params.stream_flow_blocks = request.stream_flow_blocks;
+        params.ss_weight_budget_mib = request.ss_weight_budget_mib;
         params.birefnet = request.neural_background_removal ? -1 : 0;
         params.backend = "CUDA"; params.require_gpu = true;
         DeviceMonitor monitor(request.gpu);

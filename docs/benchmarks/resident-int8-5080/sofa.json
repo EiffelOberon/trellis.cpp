@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "comparison": "resident-bf16-vs-resident-int8",
+  "input_sha256": "160832a0d1a434b1e72c63239c3c9230849936127bd0ead31b36a3a0e90af590",
+  "executable_sha256": "408015e92273fd038444feb1042fc78ba44f644e7d4607253bb7cab8bf0ba547",
+  "model_sha256": {
+    "ss_flow_bf16.plan": "9b2afd4892a270878b5fb5042e043742e2427782104645156478b84fd3fdc0bd",
+    "ss_flow_int8.plan": "8a67f953f452bb2f919e94468579da5af8fde55a7e353e740fbda9d1f21c0bcd",
+    "shape_flow_512.gguf": "fef397f3600e2fab327a98b3edd3cc8377e9741eef870f3ea3f40235875828fb",
+    "tex_flow_512.gguf": "0e81b8213191369dc023eb270650f0ccded29f39bf0bbb7a1fe5d4bcefc15b79",
+    "int8/shape_flow_512.gguf": "86dfe09a00e45c0d82612d21a4d0b447218e524e348e380cd5193c5dc2e83b5f",
+    "int8/tex_flow_512.gguf": "0c221a8d254b0a08c3cd336454397afb263519a9ed82bf6ba78b220e59ae7a77"
+  },
+  "gpu": "NVIDIA GeForce RTX 5080, 617.14",
+  "commit": "45edf32c2c5031932b735a9db38accba8e03d704",
+  "sample_ms": {
+    "worker_cuda": 20,
+    "device_wide": 50,
+    "process_rss": 20
+  },
+  "note": "Fresh sequential workers, seed 42, 512, 12 steps, 150K faces, 1K PNG atlas; streaming disabled in both profiles. Source may be uncommitted.",
+  "bf16": {
+    "command": [
+      "D:\\Project\\trellis.cpp\\build-baseline\\trellis-job.exe",
+      "D:\\Project\\trellis.cpp\\out\\sofa-eevee\\sofa-reference.png",
+      "D:\\Project\\trellis.cpp\\out\\resident-int8\\sofa\\bf16\\asset.glb",
+      "D:\\Project\\trellis.cpp\\models\\f16",
+      "--capture-dir",
+      "D:\\Project\\trellis.cpp\\out\\resident-int8\\sofa\\bf16\\capture"
+    ],
+    "returncode": 0,
+    "process_seconds": 38.53099999995902,
+    "peak_rss_bytes": 3375058944,
+    "device_wide_idle_bytes": 2958032896,
+    "device_wide_peak_bytes": 6353321984,
+    "worker": {
+      "status": "success",
+      "error": "",
+      "seed": 42,
+      "profile": "bf16",
+      "stream_flow_blocks": 0,
+      "ss_weight_budget_mib": -1,
+      "seconds": 38.3541,
+      "idle_device_bytes": 1353121792,
+      "sampled_peak_device_bytes": 4509335552,
+      "idle_after_device_bytes": 1694957568,
+      "repaired_nonfinite": 0,
+      "clamped_guidance": 4,
+      "stages": [
+        {
+          "stage": "preprocess",
+          "backend": "ggml/cpu",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.0761948,
+          "sampled_peak_device_bytes": 1353121792
+        },
+        {
+          "stage": "conditioning",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.305596,
+          "sampled_peak_device_bytes": 2173108224
+        },
+        {
+          "stage": "ss_flow",
+          "backend": "tensorrt",
+          "precision": "bf16",
+          "seconds": 5.24544,
+          "sampled_peak_device_bytes": 4509335552
+        },
+        {
+          "stage": "ss_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.14253,
+          "sampled_peak_device_bytes": 2244411392
+        },
+        {
+          "stage": "shape_flow",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+          "seconds": 6.02746,
+          "sampled_peak_device_bytes": 4366729216
+        },
+        {
+          "stage": "shape_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 5.22993,
+          "sampled_peak_device_bytes": 3326541824
+        },
+        {
+          "stage": "texture_flow",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+          "seconds": 3.85606,
+          "sampled_peak_device_bytes": 4469489664
+        },
+        {
+          "stage": "texture_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 3.86053,
+          "sampled_peak_device_bytes": 3326541824
+        },
+        {
+          "stage": "mesh_processing",
+          "backend": "native-cpu/cuda",
+          "precision": "fp32",
+          "seconds": 10.7916,
+          "sampled_peak_device_bytes": 2370240512
+        },
+        {
+          "stage": "bake",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 2.52622,
+          "sampled_peak_device_bytes": 1694957568
+        },
+        {
+          "stage": "serialize",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 0.198397,
+          "sampled_peak_device_bytes": 1694957568
+        }
+      ]
+    }
+  },
+  "int8": {
+    "command": [
+      "D:\\Project\\trellis.cpp\\build-baseline\\trellis-job.exe",
+      "D:\\Project\\trellis.cpp\\out\\sofa-eevee\\sofa-reference.png",
+      "D:\\Project\\trellis.cpp\\out\\resident-int8\\sofa\\int8\\asset.glb",
+      "D:\\Project\\trellis.cpp\\models\\f16",
+      "--capture-dir",
+      "D:\\Project\\trellis.cpp\\out\\resident-int8\\sofa\\int8\\capture",
+      "--profile",
+      "int8"
+    ],
+    "returncode": 0,
+    "process_seconds": 35.561999999918044,
+    "peak_rss_bytes": 2595627008,
+    "device_wide_idle_bytes": 2958032896,
+    "device_wide_peak_bytes": 5363466240,
+    "worker": {
+      "status": "success",
+      "error": "",
+      "seed": 42,
+      "profile": "int8",
+      "stream_flow_blocks": 0,
+      "ss_weight_budget_mib": -1,
+      "seconds": 35.3994,
+      "idle_device_bytes": 1353121792,
+      "sampled_peak_device_bytes": 3519479808,
+      "idle_after_device_bytes": 1688666112,
+      "repaired_nonfinite": 0,
+      "clamped_guidance": 4,
+      "stages": [
+        {
+          "stage": "preprocess",
+          "backend": "ggml/cpu",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.0742503,
+          "sampled_peak_device_bytes": 1353121792
+        },
+        {
+          "stage": "conditioning",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.295718,
+          "sampled_peak_device_bytes": 2173108224
+        },
+        {
+          "stage": "ss_flow",
+          "backend": "tensorrt",
+          "precision": "int8-bf16",
+          "seconds": 3.99041,
+          "sampled_peak_device_bytes": 3519479808
+        },
+        {
+          "stage": "ss_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.143497,
+          "sampled_peak_device_bytes": 2244411392
+        },
+        {
+          "stage": "shape_flow",
+          "backend": "CUDA0",
+          "precision": "int8 Q8_0 matmul weights, bf16 KV, fp32 attention accumulation",
+          "seconds": 5.50333,
+          "sampled_peak_device_bytes": 3129409536
+        },
+        {
+          "stage": "shape_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 4.93963,
+          "sampled_peak_device_bytes": 3292987392
+        },
+        {
+          "stage": "texture_flow",
+          "backend": "CUDA0",
+          "precision": "int8 Q8_0 matmul weights, bf16 KV, fp32 attention accumulation",
+          "seconds": 3.38519,
+          "sampled_peak_device_bytes": 3257335808
+        },
+        {
+          "stage": "texture_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 3.64471,
+          "sampled_peak_device_bytes": 3292987392
+        },
+        {
+          "stage": "mesh_processing",
+          "backend": "native-cpu/cuda",
+          "precision": "fp32",
+          "seconds": 10.4081,
+          "sampled_peak_device_bytes": 2227634176
+        },
+        {
+          "stage": "bake",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 2.70075,
+          "sampled_peak_device_bytes": 1688666112
+        },
+        {
+          "stage": "serialize",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 0.218,
+          "sampled_peak_device_bytes": 1688666112
+        }
+      ]
+    }
+  },
+  "quality": {
+    "ss_occupancy_iou": 0.932629048582996,
+    "passed_ss_iou_95": false,
+    "identical_initial_noise": true,
+    "finite_captures": {
+      "ss_final": true,
+      "ss_logits": true,
+      "shape_latent": true,
+      "texture_latent": true,
+      "shape_features": true,
+      "texture_features": true
+    },
+    "silhouettes": [
+      {
+        "angle": 0,
+        "iou": 0.9857921318447634,
+        "passed": true
+      },
+      {
+        "angle": 90,
+        "iou": 0.9698568900754354,
+        "passed": true
+      },
+      {
+        "angle": 180,
+        "iou": 0.9857921318447634,
+        "passed": true
+      },
+      {
+        "angle": 300,
+        "iou": 0.9804986810702173,
+        "passed": true
+      }
+    ],
+    "glb_validation": [
+      {
+        "path": "out\\resident-int8\\sofa\\bf16\\asset.glb",
+        "vertices": 84535,
+        "triangles": 144044,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "bytes": 6563416,
+        "valid": true
+      },
+      {
+        "path": "out\\resident-int8\\sofa\\int8\\asset.glb",
+        "vertices": 86240,
+        "triangles": 145428,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "bytes": 6883076,
+        "valid": true
+      }
+    ],
+    "passed": false,
+    "scope": "Geometry/finite/PBR structure checks; visual texture/material acceptance is separate. INT8 is lossy; byte parity is not expected."
+  }
+}

@@ -1,0 +1,828 @@
+{
+  "status": "experimental",
+  "quality_passed": false,
+  "bf16_engine_sha256": "9b2afd4892a270878b5fb5042e043742e2427782104645156478b84fd3fdc0bd",
+  "bf16_engine_bytes": 2632776252,
+  "engines": {
+    "minmax": {
+      "engine_bytes": 1379595276,
+      "engine_sha256": "38de1371934f0531ca450a007922d6400bc3d28292842727c78bd4e641dcd3d0",
+      "context_scratch_bytes": 325921792,
+      "onnx_sha256": "c6897a1482f00193a46f624dc502119c77eaf64c39f278c4d2c750c62090d942",
+      "external_data": [
+        {
+          "file": "ss_flow_int8.onnx.data",
+          "sha256": "efe2a5c2b47f0e553a8c441a2f118c0c3c2b26bfc9b5e7f4901e173acea11ce1"
+        }
+      ],
+      "source_checkpoint_sha256": "ca01377c485bec418076d38ee80166d32dc776d744f2553b835cba1e97a7abf6",
+      "tensorrt": "11.4.0.106",
+      "gpu": "NVIDIA GeForce RTX 5080, 617.14, 12.0",
+      "calibration_sha256": "7664c69fc82f36aecb91322f8a4744d28d83a6b641cccbb1a03edfd0cbe2374a",
+      "calibration_forwards": 66,
+      "quantized_linears": 210,
+      "quantized_weights": 1274019840,
+      "smooth_alpha": null,
+      "int8_input_layers": 241,
+      "attention": {
+        "fused_attention_layers": 60,
+        "expected_attention_layers": 60,
+        "full_self_attention_score_bytes": 402653184,
+        "context_scratch_bytes": 325921792,
+        "passed": true,
+        "method": "TensorRT engine layer inspection plus total context-scratch bound",
+        "scope": "fixed B=1, 4096-token dense SS model; standard TensorRT operators"
+      },
+      "forwards": {
+        "engine_sha256": "38de1371934f0531ca450a007922d6400bc3d28292842727c78bd4e641dcd3d0",
+        "forwards": {
+          "forward_000": {
+            "max_abs": 0.5000795125961304,
+            "rmse": 0.05779525788955534,
+            "relative_l2": 0.05469233691056401,
+            "relative_max": 0.10903099443815926,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": false,
+            "returncode": 1
+          },
+          "forward_001": {
+            "max_abs": 0.20495271682739258,
+            "rmse": 0.05030425595402059,
+            "relative_l2": 0.04799481191606899,
+            "relative_max": 0.04449845659201271,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": false,
+            "returncode": 1
+          },
+          "forward_011": {
+            "max_abs": 0.5479764938354492,
+            "rmse": 0.06262513910776742,
+            "relative_l2": 0.0626941163311234,
+            "relative_max": 0.12556165620456108,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": false,
+            "returncode": 1
+          },
+          "forward_021": {
+            "max_abs": 1.1706236004829407,
+            "rmse": 0.1183859452545841,
+            "relative_l2": 0.11685840217707857,
+            "relative_max": 0.27067582802266865,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": false,
+            "returncode": 1
+          }
+        },
+        "passed": false
+      }
+    },
+    "smooth_all": {
+      "engine_bytes": 1388389060,
+      "engine_sha256": "de5058f6015ff6662996533a53ee22723f2e1d5737cdf8865fa124d34bdc68d2",
+      "context_scratch_bytes": 164706304,
+      "onnx_sha256": "6a8c50e411adefba81b9d4151a8622974bdc9165123748a2ec7fc51b74bd2648",
+      "external_data": [
+        {
+          "file": "ss_flow_int8_smooth.onnx.data",
+          "sha256": "dea4f230565ff5178870f793144db7db203760c2d6d4b57f0a0f4e79c53cdff7"
+        }
+      ],
+      "source_checkpoint_sha256": "ca01377c485bec418076d38ee80166d32dc776d744f2553b835cba1e97a7abf6",
+      "tensorrt": "11.4.0.106",
+      "gpu": "NVIDIA GeForce RTX 5080, 617.14, 12.0",
+      "calibration_sha256": "7664c69fc82f36aecb91322f8a4744d28d83a6b641cccbb1a03edfd0cbe2374a",
+      "calibration_forwards": 66,
+      "quantized_linears": 210,
+      "quantized_weights": 1274019840,
+      "smooth_alpha": 0.5,
+      "int8_input_layers": 210,
+      "attention": {
+        "fused_attention_layers": 60,
+        "expected_attention_layers": 60,
+        "full_self_attention_score_bytes": 402653184,
+        "context_scratch_bytes": 164706304,
+        "passed": true,
+        "method": "TensorRT engine layer inspection plus total context-scratch bound",
+        "scope": "fixed B=1, 4096-token dense SS model; standard TensorRT operators"
+      },
+      "forwards": {
+        "engine_sha256": "de5058f6015ff6662996533a53ee22723f2e1d5737cdf8865fa124d34bdc68d2",
+        "forwards": {
+          "forward_000": {
+            "max_abs": 0.19382286071777344,
+            "rmse": 0.019424826208361733,
+            "relative_l2": 0.018381943055727188,
+            "relative_max": 0.04225867830337347,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": true,
+            "returncode": 0
+          },
+          "forward_001": {
+            "max_abs": 0.08665633201599121,
+            "rmse": 0.018781195742456538,
+            "relative_l2": 0.017918960138123906,
+            "relative_max": 0.01881445188103625,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": true,
+            "returncode": 0
+          },
+          "forward_011": {
+            "max_abs": 0.11833691596984863,
+            "rmse": 0.019286070343992323,
+            "relative_l2": 0.01930731260549832,
+            "relative_max": 0.02711535864488381,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": true,
+            "returncode": 0
+          },
+          "forward_021": {
+            "max_abs": 0.8512837886810303,
+            "rmse": 0.04950236698926633,
+            "relative_l2": 0.04886363409025555,
+            "relative_max": 0.19683692032900393,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": false,
+            "returncode": 1
+          }
+        },
+        "passed": false
+      }
+    },
+    "mixed": {
+      "engine_bytes": 1795295660,
+      "engine_sha256": "8a67f953f452bb2f919e94468579da5af8fde55a7e353e740fbda9d1f21c0bcd",
+      "context_scratch_bytes": 183361536,
+      "onnx_sha256": "c7da8ab0064f5bb9bfaf7e0b5f72b2d6b8d8325347c4cc34d50d240fc469a93d",
+      "external_data": [
+        {
+          "file": "ss_flow_int8_mixed.onnx.data",
+          "sha256": "d1e17b09bd1a9ea73b5e44d030843180cd792c16e2e2396bd9171082f8347771"
+        }
+      ],
+      "source_checkpoint_sha256": "ca01377c485bec418076d38ee80166d32dc776d744f2553b835cba1e97a7abf6",
+      "tensorrt": "11.4.0.106",
+      "gpu": "NVIDIA GeForce RTX 5080, 617.14, 12.0",
+      "calibration_sha256": "7664c69fc82f36aecb91322f8a4744d28d83a6b641cccbb1a03edfd0cbe2374a",
+      "calibration_forwards": 66,
+      "quantized_linears": 140,
+      "quantized_weights": 849346560,
+      "smooth_alpha": 0.65,
+      "int8_input_layers": 140,
+      "attention": {
+        "fused_attention_layers": 60,
+        "expected_attention_layers": 60,
+        "full_self_attention_score_bytes": 402653184,
+        "context_scratch_bytes": 183361536,
+        "passed": true,
+        "method": "TensorRT engine layer inspection plus total context-scratch bound",
+        "scope": "fixed B=1, 4096-token dense SS model; standard TensorRT operators"
+      },
+      "forwards": {
+        "engine_sha256": "8a67f953f452bb2f919e94468579da5af8fde55a7e353e740fbda9d1f21c0bcd",
+        "forwards": {
+          "forward_000": {
+            "max_abs": 0.13798439502716064,
+            "rmse": 0.009356467095161499,
+            "relative_l2": 0.008854135604673153,
+            "relative_max": 0.030084367441201867,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": true,
+            "returncode": 0
+          },
+          "forward_001": {
+            "max_abs": 0.03440546989440918,
+            "rmse": 0.007933074589280463,
+            "relative_l2": 0.007568870975383757,
+            "relative_max": 0.007469968353303357,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": true,
+            "returncode": 0
+          },
+          "forward_011": {
+            "max_abs": 0.09135115146636963,
+            "rmse": 0.007862323612896783,
+            "relative_l2": 0.007870983414051244,
+            "relative_max": 0.02093192318164555,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": true,
+            "returncode": 0
+          },
+          "forward_021": {
+            "max_abs": 0.22670847177505493,
+            "rmse": 0.020147458530086065,
+            "relative_l2": 0.019887494302569197,
+            "relative_max": 0.05242035381155042,
+            "pointwise_allclose": false,
+            "rtol": 0.02,
+            "atol": 0.02,
+            "max_rtol": 0.05,
+            "passed": true,
+            "returncode": 0
+          }
+        },
+        "passed": true
+      }
+    }
+  },
+  "paired_jobs": [
+    {
+      "fixture": "prop",
+      "input_sha256": "a33fe731d46bc34d8ade14fded885a1bf0c152e2792fbe8c10bf561c938420e7",
+      "bf16_seconds": 65.11000000033528,
+      "mixed_seconds": 62.186999999918044,
+      "speedup": 1.0470033929988758,
+      "bf16_additional_peak_gib": 3.5458984375,
+      "mixed_additional_peak_gib": 3.5732421875,
+      "bf16_total_peak_gib": 6.1767578125,
+      "mixed_total_peak_gib": 6.2041015625,
+      "bf16_rss_gib": 3.2037582397460938,
+      "mixed_rss_gib": 3.007781982421875,
+      "flow_seconds": {
+        "bf16": [
+          3.3,
+          10.7,
+          6.4
+        ],
+        "mixed": [
+          2.3,
+          10.8,
+          6.5
+        ]
+      },
+      "ss_final_relative_l2": 0.4200070424408257,
+      "identical_initial_noise": true
+    },
+    {
+      "fixture": "thin",
+      "input_sha256": "f7f21b63607c5ba9a0fce954273351b2ddbde26aa62bb5d565d69a4a2ebc88a2",
+      "bf16_seconds": 21.530999999959022,
+      "mixed_seconds": 20.07799999974668,
+      "speedup": 1.0723677657252053,
+      "bf16_additional_peak_gib": 3.2138671875,
+      "mixed_additional_peak_gib": 2.8974609375,
+      "bf16_total_peak_gib": 5.8447265625,
+      "mixed_total_peak_gib": 5.5283203125,
+      "bf16_rss_gib": 3.208049774169922,
+      "mixed_rss_gib": 3.0303688049316406,
+      "flow_seconds": {
+        "bf16": [
+          3.3,
+          1.0,
+          0.6
+        ],
+        "mixed": [
+          2.3,
+          1.0,
+          0.6
+        ]
+      },
+      "ss_final_relative_l2": 0.12555800606736547,
+      "identical_initial_noise": true
+    },
+    {
+      "fixture": "parts",
+      "input_sha256": "b09f3797ec8a61dff00d9b4d4026474727940a826172571784869e732b0c65bd",
+      "bf16_seconds": 42.5160000002943,
+      "mixed_seconds": 41.42200000025332,
+      "speedup": 1.0264110858972113,
+      "bf16_additional_peak_gib": 3.2841796875,
+      "mixed_additional_peak_gib": 3.2861328125,
+      "bf16_total_peak_gib": 5.9150390625,
+      "mixed_total_peak_gib": 5.9169921875,
+      "bf16_rss_gib": 3.2063026428222656,
+      "mixed_rss_gib": 3.03021240234375,
+      "flow_seconds": {
+        "bf16": [
+          3.3,
+          4.5,
+          2.6
+        ],
+        "mixed": [
+          2.3,
+          4.5,
+          2.7
+        ]
+      },
+      "ss_final_relative_l2": 0.1510220209601183,
+      "identical_initial_noise": true
+    },
+    {
+      "fixture": "material",
+      "input_sha256": "05315f8c5f8dc1d14e702ffa59846531b5b8d6e1b12709fd945cc14ff1d28192",
+      "bf16_seconds": 25.563000000081956,
+      "mixed_seconds": 24.061999999918044,
+      "speedup": 1.0623805170047804,
+      "bf16_additional_peak_gib": 3.2138671875,
+      "mixed_additional_peak_gib": 3.0009765625,
+      "bf16_total_peak_gib": 5.8447265625,
+      "mixed_total_peak_gib": 5.6318359375,
+      "bf16_rss_gib": 3.202991485595703,
+      "mixed_rss_gib": 3.030567169189453,
+      "flow_seconds": {
+        "bf16": [
+          3.3,
+          1.7,
+          1.0
+        ],
+        "mixed": [
+          2.3,
+          1.8,
+          1.1
+        ]
+      },
+      "ss_final_relative_l2": 0.1573082333838223,
+      "identical_initial_noise": true
+    }
+  ],
+  "environment": {
+    "commit": "45edf32c2c5031932b735a9db38accba8e03d704",
+    "gpu": "NVIDIA GeForce RTX 5080, 617.14, 16303 MiB",
+    "sample_interval_ms": 50,
+    "seed": 42,
+    "resolution": 512,
+    "atlas": 1024,
+    "faces": 150000,
+    "note": "Repeated process launches: OS/file cache warm, models reloaded each run."
+  },
+  "silhouettes": [
+    {
+      "fixture": "prop",
+      "angle": 0,
+      "silhouette_iou": 0.9877442195350475,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "prop",
+      "angle": 90,
+      "silhouette_iou": 0.9796912175633908,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "prop",
+      "angle": 180,
+      "silhouette_iou": 0.9877633920430607,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "prop",
+      "angle": 300,
+      "silhouette_iou": 0.9894021872662448,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 0,
+      "silhouette_iou": 0.9684830137907837,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 90,
+      "silhouette_iou": 0.9760374458572028,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 180,
+      "silhouette_iou": 0.9685113540790581,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "thin",
+      "angle": 300,
+      "silhouette_iou": 0.9708630609896433,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 0,
+      "silhouette_iou": 0.9683511491840916,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 90,
+      "silhouette_iou": 0.9729287150467425,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 180,
+      "silhouette_iou": 0.9678916064068709,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "parts",
+      "angle": 300,
+      "silhouette_iou": 0.9752537943511911,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 0,
+      "silhouette_iou": 0.9769073251829775,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 90,
+      "silhouette_iou": 0.9512886597938144,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 180,
+      "silhouette_iou": 0.9768889249295518,
+      "passed_iou_95": true
+    },
+    {
+      "fixture": "material",
+      "angle": 300,
+      "silhouette_iou": 0.9497017024785371,
+      "passed_iou_95": false
+    }
+  ],
+  "occupancy": {
+    "prop": {
+      "occupancy_iou": 0.911490367,
+      "agreement": 0.991710663,
+      "logits_rmse": 15.8439169
+    },
+    "thin": {
+      "occupancy_iou": 0.988023952,
+      "agreement": 0.999908447,
+      "logits_rmse": 1.28007859
+    },
+    "parts": {
+      "occupancy_iou": 0.968231293,
+      "agreement": 0.998218536,
+      "logits_rmse": 6.1720917
+    },
+    "material": {
+      "occupancy_iou": 0.954237568,
+      "agreement": 0.998943329,
+      "logits_rmse": 4.31226233
+    }
+  },
+  "worker_jobs": [
+    {
+      "status": "success",
+      "error": "",
+      "seed": 42,
+      "seconds": 19.5381,
+      "idle_device_bytes": 1353121792,
+      "sampled_peak_device_bytes": 4226220032,
+      "idle_after_device_bytes": 1596391424,
+      "repaired_nonfinite": 0,
+      "clamped_guidance": 6,
+      "stages": [
+        {
+          "stage": "preprocess",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 5.36648,
+          "sampled_peak_device_bytes": 3324444672
+        },
+        {
+          "stage": "conditioning",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.165513,
+          "sampled_peak_device_bytes": 2263285760
+        },
+        {
+          "stage": "ss_flow",
+          "backend": "tensorrt",
+          "precision": "int8-bf16",
+          "seconds": 3.79451,
+          "sampled_peak_device_bytes": 3578200064
+        },
+        {
+          "stage": "ss_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.137616,
+          "sampled_peak_device_bytes": 2298937344
+        },
+        {
+          "stage": "shape_flow",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+          "seconds": 1.51053,
+          "sampled_peak_device_bytes": 4226220032
+        },
+        {
+          "stage": "shape_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.732898,
+          "sampled_peak_device_bytes": 2728853504
+        },
+        {
+          "stage": "texture_flow",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+          "seconds": 1.17341,
+          "sampled_peak_device_bytes": 4226220032
+        },
+        {
+          "stage": "texture_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.651458,
+          "sampled_peak_device_bytes": 2728853504
+        },
+        {
+          "stage": "mesh_processing",
+          "backend": "native-cpu/cuda",
+          "precision": "fp32",
+          "seconds": 1.06355,
+          "sampled_peak_device_bytes": 1650917376
+        },
+        {
+          "stage": "bake",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 4.6457,
+          "sampled_peak_device_bytes": 1596391424
+        },
+        {
+          "stage": "serialize",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 0.215916,
+          "sampled_peak_device_bytes": 1596391424
+        }
+      ]
+    },
+    {
+      "status": "success",
+      "error": "",
+      "seed": 42,
+      "seconds": 17.3534,
+      "idle_device_bytes": 1596391424,
+      "sampled_peak_device_bytes": 4226220032,
+      "idle_after_device_bytes": 1596391424,
+      "repaired_nonfinite": 0,
+      "clamped_guidance": 6,
+      "stages": [
+        {
+          "stage": "preprocess",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 5.04308,
+          "sampled_peak_device_bytes": 3435593728
+        },
+        {
+          "stage": "conditioning",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.159145,
+          "sampled_peak_device_bytes": 2298937344
+        },
+        {
+          "stage": "ss_flow",
+          "backend": "tensorrt",
+          "precision": "int8-bf16",
+          "seconds": 3.77976,
+          "sampled_peak_device_bytes": 3578200064
+        },
+        {
+          "stage": "ss_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.137605,
+          "sampled_peak_device_bytes": 2298937344
+        },
+        {
+          "stage": "shape_flow",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+          "seconds": 1.50821,
+          "sampled_peak_device_bytes": 4226220032
+        },
+        {
+          "stage": "shape_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.80198,
+          "sampled_peak_device_bytes": 2728853504
+        },
+        {
+          "stage": "texture_flow",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+          "seconds": 1.19361,
+          "sampled_peak_device_bytes": 4226220032
+        },
+        {
+          "stage": "texture_decode",
+          "backend": "CUDA0",
+          "precision": "fp16 weights, fp32 activations",
+          "seconds": 0.649673,
+          "sampled_peak_device_bytes": 2728853504
+        },
+        {
+          "stage": "mesh_processing",
+          "backend": "native-cpu/cuda",
+          "precision": "fp32",
+          "seconds": 1.10179,
+          "sampled_peak_device_bytes": 1659305984
+        },
+        {
+          "stage": "bake",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 2.75904,
+          "sampled_peak_device_bytes": 1596391424
+        },
+        {
+          "stage": "serialize",
+          "backend": "native-cpu",
+          "precision": "fp32",
+          "seconds": 0.215599,
+          "sampled_peak_device_bytes": 1596391424
+        }
+      ]
+    }
+  ],
+  "glb_validation": [
+    {
+      "path": "out\\int8\\bf16\\prop_0.glb",
+      "vertices": 94453,
+      "triangles": 138334,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 8978212,
+      "valid": true
+    },
+    {
+      "path": "out\\int8\\bf16\\thin_0.glb",
+      "vertices": 96967,
+      "triangles": 145842,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 7838780,
+      "valid": true
+    },
+    {
+      "path": "out\\int8\\bf16\\parts_0.glb",
+      "vertices": 108421,
+      "triangles": 139804,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 7872368,
+      "valid": true
+    },
+    {
+      "path": "out\\int8\\bf16\\material_0.glb",
+      "vertices": 106605,
+      "triangles": 148924,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 9083796,
+      "valid": true
+    },
+    {
+      "path": "out\\int8\\mixed\\prop_0.glb",
+      "vertices": 100220,
+      "triangles": 145094,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 8843616,
+      "valid": true
+    },
+    {
+      "path": "out\\int8\\mixed\\thin_0.glb",
+      "vertices": 97302,
+      "triangles": 142170,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 7575948,
+      "valid": true
+    },
+    {
+      "path": "out\\int8\\mixed\\parts_0.glb",
+      "vertices": 108497,
+      "triangles": 142866,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 7805544,
+      "valid": true
+    },
+    {
+      "path": "out\\int8\\mixed\\material_0.glb",
+      "vertices": 104254,
+      "triangles": 144256,
+      "textures": [
+        [
+          1024,
+          1024
+        ],
+        [
+          1024,
+          1024
+        ]
+      ],
+      "bytes": 9089100,
+      "valid": true
+    }
+  ],
+  "limits": [
+    "Experimental mixed INT8/BF16 SS only; remaining pipeline stages retain their original precision.",
+    "Calibration uses 66 forwards from chest/drone/knight at seed 42; this is not broad production calibration.",
+    "Numerical policy screening used the saved reference forwards; these are development checks, not an untouched final test set.",
+    "Paired timings are one process launch per fixture/backend, with parity-capture overhead included in both.",
+    "Device-wide memory is sampled at 50 ms; observed peaks are lower bounds.",
+    "No in-process Glint editor generation/upload/acceleration-build acceptance was performed."
+  ]
+}

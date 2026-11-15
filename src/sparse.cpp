@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <unordered_map>
 #include <stdexcept>
 
@@ -65,7 +66,7 @@ static T* mul_mat_rows(ggml_context* c, T* W, T* x) {
 // FULL input (a neighbour can be any voxel), so `feats` must stay whole -- but the OUTPUT
 // is per-voxel, so restricting it to a range needs no halo.
 static T* submconv_range(ggml_context* c, const Model& m, const std::string& prefix,
-                         T* fz, T* W, T* nbr, int N, int r0, int nr) {
+                         T* fz, T* W, T* nbr, int N, int r0, int nr, int padded_nr = 0) {
     const int64_t Ci = W->ne[0], Co = W->ne[2];
     T* acc = nullptr;
     for (int t = 0; t < 27; ++t) {
@@ -74,6 +75,7 @@ static T* submconv_range(ggml_context* c, const Model& m, const std::string& pre
         // nbr is tap-major [27, N], so tap t's slice for this range starts at t*N + r0.
         T* idx = ggml_cont(c, ggml_view_1d(c, nbr, nr, ((size_t)t * N + r0) * ggml_element_size(nbr)));
         T* g = ggml_get_rows(c, fz, idx);                          // [Ci, nr]
+        if (padded_nr > nr) g = ggml_pad(c, g, 0, padded_nr - nr, 0, 0);
         T* Wt = ggml_cont(c, ggml_view_2d(c, W, Ci, Co, W->nb[2], (size_t)t * W->nb[1])); // [Ci,Co]
         T* o = mul_mat_rows(c, Wt, g);                             // [Co, nr]
         acc = acc ? ggml_add(c, acc, o) : o;
@@ -100,7 +102,7 @@ ggml_tensor* sparse_submconv(ggml_context* c, const Model& m, const std::string&
 // is chunked over output voxels: only the [C,N] input/output stay whole, while the wide
 // intermediates are bounded to [4C, nr]. gallocr frees each chunk's temporaries at its
 // residual add, so the peak is one chunk, not the sum.
-static constexpr int64_t kBlockChunkBytes = 1500u * 1024 * 1024;   // budget per [4C, nr]
+static constexpr int64_t kCudaBlockChunkBytes = 128u * 1024 * 1024; // budget per [4C, nr]
 
 ggml_tensor* sparse_convnext(ggml_context* c, const Model& m, const std::string& prefix,
                              T* feats, T* nbr, int N) {
@@ -109,7 +111,8 @@ ggml_tensor* sparse_convnext(ggml_context* c, const Model& m, const std::string&
     T* fz = submconv_pad(c, feats, Wc->ne[0]);          // built once, shared by every chunk
 
     const int64_t per_vox = 4 * C * 4;                  // widest intermediate, bytes/voxel
-    int64_t budget = kBlockChunkBytes;
+    const bool cuda = std::strncmp(ggml_backend_name(m.backend), "CUDA", 4) == 0;
+    int64_t budget = cuda ? kCudaBlockChunkBytes : 1500ll * 1024 * 1024;
     if (const char* e = getenv("TRELLIS_BLOCK_CHUNK_MB")) budget = atoll(e) * 1024 * 1024;  // A/B override
     int64_t chunk = std::max<int64_t>(1, budget / std::max<int64_t>(per_vox, 1));
     // Floor on the chunk size: every chunk adds ~145 graph nodes and decode_unet builds a
@@ -123,7 +126,11 @@ ggml_tensor* sparse_convnext(ggml_context* c, const Model& m, const std::string&
     T* out = nullptr;
     for (int64_t r0 = 0; r0 < N; r0 += chunk) {
         const int nr = (int)std::min<int64_t>(chunk, N - r0);
-        T* h = submconv_range(c, m, prefix + ".conv", fz, Wc, nbr, N, (int)r0, nr);   // [C,nr]
+        // Keep the tail on the same CUDA GEMM kernel family as full chunks. A short
+        // tail can select a different half-accumulation algorithm; repeated decoder
+        // blocks amplify its rounding difference even though the operation is row-local.
+        const int padded_nr = cuda && chunk < N ? (int)chunk : nr;
+        T* h = submconv_range(c, m, prefix + ".conv", fz, Wc, nbr, N, (int)r0, nr, padded_nr);
         h = ggml_norm(c, h, 1e-6f);                                                   // rowLN over ne0=C
         h = ggml_add(c, ggml_mul(c, h, m.get(prefix + ".norm.weight")), m.get(prefix + ".norm.bias"));
         h = ggml_add(c, mul_mat_rows(c, m.get(prefix + ".mlp.0.weight"), h), m.get(prefix + ".mlp.0.bias"));
@@ -133,8 +140,21 @@ ggml_tensor* sparse_convnext(ggml_context* c, const Model& m, const std::string&
         T* fr = (r0 == 0 && nr == N)
                     ? feats
                     : ggml_cont(c, ggml_view_2d(c, feats, C, nr, feats->nb[1], (size_t)r0 * feats->nb[1]));
+        if (padded_nr > nr) fr = ggml_pad(c, fr, 0, padded_nr - nr, 0, 0);
         h = ggml_add(c, h, fr);
-        out = out ? ggml_concat(c, out, h, 1) : h;
+        if (padded_nr > nr) h = ggml_cont(c, ggml_view_2d(c, h, C, nr, h->nb[1], 0));
+        if (nr == N) return h;
+        // ggml SET encodes its byte offset in 30 bits. Large cascade stages keep
+        // the concat fallback; their existing host-streamed path bounds residency.
+        if (!cuda || (size_t)C * N * sizeof(float) >= (1ull << 30)) {
+            out = out ? ggml_concat(c, out, h, 1) : h;
+            continue;
+        }
+        // A growing concat keeps every prefix live and can dwarf the MLP workspace.
+        // Write disjoint rows into one output instead; input features stay separate
+        // because the next convolution chunk still reads their neighbours.
+        if (!out) out = ggml_scale(c, feats, 0.0f);
+        out = ggml_set_2d_inplace(c, out, h, out->nb[1], (size_t)r0 * out->nb[1]);
     }
     return out;
 }

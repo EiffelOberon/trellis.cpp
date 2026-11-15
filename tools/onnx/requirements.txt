@@ -2,6 +2,7 @@
 # Install the CUDA PyTorch build separately for the target driver/toolkit.
 numpy==2.4.3
 onnx==1.23.2
+ml_dtypes==0.6.0
 onnxscript==0.7.2
 onnxruntime==1.32.0
 safetensors==0.8.0

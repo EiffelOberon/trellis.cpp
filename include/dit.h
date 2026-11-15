@@ -43,4 +43,13 @@ ggml_tensor* build_dit_dense(ggml_context* gctx, const Model& m, const DiTParams
                              ggml_tensor* proj, ggml_tensor* cos, ggml_tensor* sin,
                              std::map<std::string, ggml_tensor*>* inter = nullptr);
 
+// The same operations split at transformer-block boundaries for weight streaming.
+ggml_tensor* build_dit_input(ggml_context* c, const Model& m, const DiTParams& p,
+                            ggml_tensor* h0, ggml_tensor* tfreq, ggml_tensor** mod);
+ggml_tensor* build_dit_blocks(ggml_context* c, const Model& m, const DiTParams& p,
+                             int first, int count, ggml_tensor* h, ggml_tensor* mod,
+                             ggml_tensor* cond, ggml_tensor* proj,
+                             ggml_tensor* cos, ggml_tensor* sin);
+ggml_tensor* build_dit_output(ggml_context* c, const Model& m, const DiTParams& p, ggml_tensor* h);
+
 } // namespace trellis

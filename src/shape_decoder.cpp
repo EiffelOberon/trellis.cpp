@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 #include <stdexcept>
 
@@ -64,15 +65,36 @@ static constexpr int64_t kLinearRowChunk = 1000000;
 
 static std::vector<float> linear_rows(const Model& m, const std::vector<float>& in, int Cin,
                                       int64_t N, const std::string& prefix, int Cout, bool pre_norm) {
+    // These rows are independent. Bound the input + normalized copy + projection,
+    // rather than reserving ~0.5 GiB for a million 64-channel output rows.
+    const int64_t bytes_per_row = sizeof(float) * (int64_t)(Cin * (pre_norm ? 2 : 1) + Cout * 2);
+    const bool cuda = std::strncmp(ggml_backend_name(m.backend), "CUDA", 4) == 0;
+    int64_t budget = cuda ? 64ll * 1024 * 1024 : bytes_per_row * kLinearRowChunk;
+    if (const char* e = getenv("TRELLIS_DECODER_LINEAR_MB")) {
+        const int64_t mb = atoll(e);
+        if (mb > 0) budget = mb * 1024 * 1024;
+    }
+    const int64_t chunk = std::min(kLinearRowChunk, std::max<int64_t>(1, budget / bytes_per_row));
     std::vector<float> out((size_t)Cout * N);
-    for (int64_t r0 = 0; r0 < N; r0 += kLinearRowChunk) {
-        const int64_t n = std::min(kLinearRowChunk, N - r0);
+    for (int64_t r0 = 0; r0 < N; r0 += chunk) {
+        const int64_t n = std::min(chunk, N - r0);
+        // Match the full tile's GEMM selection on a short CUDA tail, as in
+        // ConvNeXt. In particular, the seven-channel shape head can otherwise
+        // round differently even when all preceding features are identical.
+        const int64_t compute_n = cuda && chunk < kLinearRowChunk && N > chunk ? chunk : n;
+        const float* data = in.data() + (size_t)Cin * r0;
+        std::vector<float> padded;
+        if (compute_n > n) {
+            padded.resize((size_t)Cin * compute_n, 0.0f);
+            std::copy_n(data, (size_t)Cin * n, padded.data());
+            data = padded.data();
+        }
         ggml_context* c = mkctx();
-        T* gh = ggml_new_tensor_2d(c, GGML_TYPE_F32, Cin, n); ggml_set_input(gh);
+        T* gh = ggml_new_tensor_2d(c, GGML_TYPE_F32, Cin, compute_n); ggml_set_input(gh);
         T* x = pre_norm ? ggml_norm(c, gh, 1e-5f) : gh;
         x = ggml_add(c, ggml_mul_mat(c, m.get(prefix + ".weight"), x), m.get(prefix + ".bias"));
-        std::vector<float> r = run1(m, c, x, { {gh, in.data() + (size_t)Cin * r0} });
-        std::copy(r.begin(), r.end(), out.begin() + (size_t)Cout * r0);
+        std::vector<float> r = run1(m, c, x, { {gh, data} });
+        std::copy_n(r.begin(), (size_t)Cout * n, out.begin() + (size_t)Cout * r0);
         ggml_free(c);
     }
     return out;

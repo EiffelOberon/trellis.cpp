@@ -25,6 +25,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--fixture", choices=list(FIXTURES), action="append")
     parser.add_argument("--engine", type=Path)
+    parser.add_argument("--capture-root", type=Path, help="Optional per-run parity captures (included in timing)")
     parser.add_argument("--repeats", type=int, default=2)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
@@ -44,6 +45,8 @@ def main():
                        "--atlas", "1024", "--faces", "150000", "--webp", "off", "--require-gpu"]
             if args.engine:
                 command += ["--ss-engine", str(args.engine.resolve())]
+            if args.capture_root:
+                command += ["--capture-dir", str((args.capture_root / stem).resolve())]
             samples = []
             monitor = subprocess.Popen(["nvidia-smi", "--query-gpu=memory.used", "--format=csv,noheader,nounits",
                                         "--loop-ms=50"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,

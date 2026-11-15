@@ -32,7 +32,8 @@ enum class JobStatus { Success, Cancelled, Failed };
 struct JobRequest {
     std::vector<uint8_t> image;  // encoded PNG/JPEG/etc.; borrowed only during run_job
     std::string models = "models/f16";
-    std::string ss_engine;      // empty selects GGML, nonempty requires TensorRT (no fallback)
+    std::string profile = "bf16"; // default resident BF16 SS; int8 selects resident quantized flows
+    std::string ss_engine;      // empty resolves from profile; profile=native allows explicit legacy selection
     std::string capture_dir;    // optional native forward/noise fixtures, for offline parity
     uint32_t seed = 42;         // explicit, including zero
     int gpu = 0;
@@ -40,6 +41,8 @@ struct JobRequest {
     int atlas = 1024;
     int faces = 150000;
     int steps = 12;
+    int stream_flow_blocks = 0; // CUDA sparse flows: 0 resident, or a positive divisor of 30
+    int ss_weight_budget_mib = -1; // -1 engine default; >=0 requires a streaming-enabled engine
     bool neural_background_removal = true; // false uses existing alpha / white-background threshold
 };
 struct JobResult {

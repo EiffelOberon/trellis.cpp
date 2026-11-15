@@ -39,7 +39,10 @@ struct TrellisParams {
                                 // "CPU", ...); empty = auto-select. --gpu N then indexes
                                 // within that backend's devices.
     std::string ss_engine;      // fixed-shape TensorRT SS flow engine; empty = GGML
+    std::string profile;        // auto: bf16 on CUDA 512 without an explicit engine; named profiles are resident
     std::string capture_dir;    // optional parity fixtures (noise + SS forwards)
+    int stream_flow_blocks = 0; // 0 resident; otherwise stage this many of 30 sparse DiT blocks
+    int ss_weight_budget_mib = -1; // -1 engine default; >=0 requires a streaming-enabled engine
     int threads = 0;            // CPU backend thread count; 0 = auto (all cores).
                                 // ggml's own default is GGML_DEFAULT_N_THREADS == 4.
     uint32_t seed = 0;
@@ -143,6 +146,8 @@ void print_usage(const char* argv0, bool server);
 // (non-flag) positionals fill `image` then `output`. Returns false on a parse
 // error OR when --help was requested; check p.help to tell them apart.
 bool parse_args(int argc, char** argv, TrellisParams& p);
+// Named 512 profiles always keep weights resident; resolves conventional engine paths.
+void resolve_precision_profile(TrellisParams& p);
 bool parse_camera_arg(const std::string& name, const char* value, TrellisParams& p, std::string& error);
 
 // ---- QEM face target (--faces / server field "faces") ----

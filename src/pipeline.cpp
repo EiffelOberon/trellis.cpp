@@ -89,9 +89,11 @@ static const float SHAPE_STD[32]={5.972266f,4.706852f,5.445010f,5.209927f,5.3202
 static const float TEX_MEAN[32]={3.501659f,2.212398f,2.226094f,0.251093f,-0.026248f,-0.687364f,0.439898f,-0.928075f,0.029398f,-0.339596f,-0.869527f,1.038479f,-0.972385f,0.126042f,-1.129303f,0.455149f,-1.209521f,2.069067f,0.544735f,2.569128f,-0.323407f,2.293000f,-1.925608f,-1.217717f,1.213905f,0.971588f,-0.023631f,0.106750f,2.021786f,0.250524f,-0.662387f,-0.768862f};
 static const float TEX_STD[32]={2.665652f,2.743913f,2.765121f,2.595319f,3.037293f,2.291316f,2.144656f,2.911822f,2.969419f,2.501689f,2.154811f,3.163343f,2.621215f,2.381943f,3.186697f,3.021588f,2.295916f,3.234985f,3.233086f,2.260140f,2.874801f,2.810596f,3.292720f,2.674999f,2.680878f,2.372054f,2.451546f,2.353556f,2.995195f,2.379849f,2.786195f,2.775190f};
 
-int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control) {
+int trellis_run(const trellis::TrellisParams& requested, trellis::RunControl* control) {
     static std::mutex pipeline_mutex;
     std::lock_guard<std::mutex> pipeline_lock(pipeline_mutex);
+    trellis::TrellisParams cfg = requested;
+    trellis::resolve_precision_profile(cfg);
     trellis::RunControl cli_control;
     trellis::JobMetrics cli_metrics;
     if (!control && !cfg.capture_dir.empty()) {
@@ -109,6 +111,11 @@ int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control)
     if (!cfg.ss_engine.empty() && (cfg.cascade || cfg.family != trellis::ModelFamily::Trellis ||
                                   cfg.gpu < 0 || (!cfg.backend.empty() && cfg.backend != "CUDA")))
         throw std::invalid_argument("TensorRT SS requires the TRELLIS.2 512 preset on CUDA");
+    if (cfg.ss_weight_budget_mib < -1 || (cfg.ss_weight_budget_mib >= 0 && cfg.ss_engine.empty()))
+        throw std::invalid_argument("SS weight budget requires a TensorRT engine");
+    if (cfg.stream_flow_blocks < 0 || cfg.stream_flow_blocks > 30 ||
+        (cfg.stream_flow_blocks && 30 % cfg.stream_flow_blocks))
+        throw std::invalid_argument("stream-flow-blocks must be 0 or a positive divisor of 30");
     if (control && !control->capture_dir.empty()) std::filesystem::create_directories(control->capture_dir);
     namespace fs = std::filesystem;
     fs::path retopo_driver, retopo_run;
@@ -239,6 +246,7 @@ int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control)
     // and keep their plain names, so adding Pixal3D to an existing TRELLIS.2 set is 5 new files
     // rather than a second copy of everything.
     const std::string FP = pix ? "/pixal3d_" : "/";
+    const std::string sparse_fp = cfg.profile == "int8" ? "/int8/" : FP;
     trellis::CameraParams cam;
     if (pix) {
         constexpr float PIXAL3D_DEFAULT_FOV = 0.8575560450553894f;   // radians (~49.13 deg)
@@ -437,7 +445,11 @@ int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control)
         if (cfg.ss_engine.empty()) run.reset(trellis::make_dense_runner(m, p, 16, Lc));
         else {
             if (Lc != 1029) throw std::runtime_error("TensorRT SS requires 1029 conditioning tokens");
-            trt = std::make_unique<trellis::TrtFlowRunner>(cfg.ss_engine, gpu);
+            trt = std::make_unique<trellis::TrtFlowRunner>(cfg.ss_engine, gpu, false, cfg.ss_weight_budget_mib,
+                                                        cfg.profile == "bf16" || cfg.profile == "int8");
+            if ((cfg.profile == "bf16" && trt->precision() != "bf16") ||
+                (cfg.profile == "int8" && trt->precision() != "int8-bf16"))
+                throw std::runtime_error("SS engine precision does not match the selected profile");
             if (control && control->metrics) control->metrics->stages.back().precision = trt->precision();
         }
         int forward_index = 0;
@@ -498,20 +510,23 @@ int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control)
     auto shape_flow = [&](const std::string& path, const vector<std::array<int,3>>& cds,
                           const float* cnd, const float* ncnd, int lc,
                           int grid_res, int S, int naf_out) {
-        stage("shape_flow", "ggml", "fp16 weights, bf16 KV, fp32 accumulation");
+        stage("shape_flow", "ggml", cfg.profile == "int8" ? "int8 Q8_0 matmul weights, bf16 KV, fp32 attention accumulation" : "fp16 weights, bf16 KV, fp32 accumulation");
         const int n = (int)cds.size();
-        trellis::Model m = trellis::Model::load(path, gpu);
+        trellis::Model m = trellis::Model::load(path, gpu, cfg.stream_flow_blocks != 0);
+        if (cfg.profile == "int8" && m.get("blocks.0.self_attn.to_qkv.weight")->type != GGML_TYPE_Q8_0)
+            throw std::runtime_error("INT8 profile requires Q8_0 sparse flow weights");
         note_backend(m);
         trellis::DiTParams p; p.in_ch = 32; p.out_ch = 32; p.d_cond = 1024; p.cast_f32 = F32;
         p.proj_ch = proj_ch_of(m); p.proj_mode = p.proj_ch > 0;
         trellis::ProjCond pc;
         if (pix) pc = build_proj(grid_res, S, naf_out, p.proj_ch, &cds);
-        std::unique_ptr<trellis::DitRunner> run(trellis::make_sparse_runner(m, p, cds, lc));
+        std::unique_ptr<trellis::DitRunner> run(trellis::make_sparse_runner(m, p, cds, lc, cfg.stream_flow_blocks));
         trellis::FlowFwd fwd = [&](const vector<float>& x, float ts, const trellis::FlowCond& c){ return run->forward(x, ts, c); };
         trellis::SamplerParams sp; sp.control=control; sp.steps=(cfg.steps>0?cfg.steps:12); sp.guidance_strength=cfg.gsh; sp.guidance_rescale=0.5f; sp.gi0=0.6f; sp.gi1=1.0f; sp.rescale_t=3.0f;
         vector<float> sn = trellis::sample_flow(fwd, noise((size_t)32*n),
                                trellis::FlowCond(cnd,  pix ? pc.proj.data()     : nullptr),
                                trellis::FlowCond(ncnd, nullptr), sp);   // [32,n]
+        if (control && !control->capture_dir.empty()) npy::save(control->capture_dir + "/shape_latent.npy", sn.data(), {n,32});
         run.reset(); m.free();
         return sn;
     };
@@ -602,7 +617,7 @@ int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control)
     } else {
         printf("[4/7] shape SLAT flow (512)\n");
         shc = coords;
-        slat_norm = shape_flow(M + FP + "shape_flow_512.gguf", coords, cond.data(), neg.data(), Lc,
+        slat_norm = shape_flow(M + sparse_fp + "shape_flow_512.gguf", coords, cond.data(), neg.data(), Lc,
                                /*grid_res=*/32, /*S=*/512, /*naf_out=*/512);
     }
     const int N = (int)shc.size();
@@ -628,6 +643,8 @@ int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control)
         trellis::Model m = trellis::Model::load(M + "/shape_dec.gguf", gpu);
         note_backend(m);
         so = trellis::shape_decode(m, slat_dn, shc, RES); m.free();
+        if (control && !control->capture_dir.empty())
+            npy::save(control->capture_dir + "/shape_features.npy", so.feats7.data(), {(int64_t)so.coords.size(),7});
         printf("      decoded voxels @res%d = %d\n", so.res, (int)so.coords.size());
         mesh = trellis::dual_grid_to_mesh(so);
         // feats7 is consumed by dual_grid_to_mesh and is never referenced again.
@@ -694,7 +711,7 @@ int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control)
             fflush(stdout);
         }
         auto decode_texture = [&](bool use_mixed) {
-            const std::string tflow = M + FP + (use_mixed ? "tex_flow_512.gguf" : (cascade ? "tex_flow_1024.gguf" : "tex_flow_512.gguf"));
+            const std::string tflow = M + sparse_fp + (use_mixed ? "tex_flow_512.gguf" : (cascade ? "tex_flow_1024.gguf" : "tex_flow_512.gguf"));
             const vector<std::array<int,3>>& tcoords = use_mixed ? coords : shc;
             const vector<float>& tslat = use_mixed ? lr_norm : slat_norm;
             const float* tcond = use_mixed ? cond.data() : cond_dec;
@@ -709,14 +726,16 @@ int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control)
             const int tnaf = tex_lr ? 256 : 1024;
             vector<float> texlat;
 
-            stage("texture_flow", "ggml", "fp16 weights, bf16 KV, fp32 accumulation");
-            trellis::Model m = trellis::Model::load(tflow, gpu);
+            stage("texture_flow", "ggml", cfg.profile == "int8" ? "int8 Q8_0 matmul weights, bf16 KV, fp32 attention accumulation" : "fp16 weights, bf16 KV, fp32 accumulation");
+            trellis::Model m = trellis::Model::load(tflow, gpu, cfg.stream_flow_blocks != 0);
+            if (cfg.profile == "int8" && m.get("blocks.0.self_attn.to_qkv.weight")->type != GGML_TYPE_Q8_0)
+                throw std::runtime_error("INT8 profile requires Q8_0 sparse flow weights");
             note_backend(m);
             trellis::DiTParams p; p.in_ch = 64; p.out_ch = 32; p.d_cond = 1024; p.cast_f32 = F32;
             p.proj_ch = proj_ch_of(m); p.proj_mode = p.proj_ch > 0;
             trellis::ProjCond pc;
             if (pix) pc = build_proj(tgrid, tS, tnaf, p.proj_ch, &tcoords);
-            std::unique_ptr<trellis::DitRunner> run(trellis::make_sparse_runner(m, p, tcoords, tlc));
+            std::unique_ptr<trellis::DitRunner> run(trellis::make_sparse_runner(m, p, tcoords, tlc, cfg.stream_flow_blocks));
             trellis::FlowFwd fwd = [&](const vector<float>& st, float ts, const trellis::FlowCond& c) {
                 vector<float> x64((size_t)64 * tN);
                 for (int n = 0; n < tN; ++n) {
@@ -729,12 +748,15 @@ int trellis_run(const trellis::TrellisParams& cfg, trellis::RunControl* control)
             texlat = trellis::sample_flow(fwd, noise((size_t)32*tN),
                          trellis::FlowCond(tcond, pix ? pc.proj.data()     : nullptr),
                          trellis::FlowCond(tneg,  nullptr), sp);  // [32,tN]
+            if (control && !control->capture_dir.empty()) npy::save(control->capture_dir + "/texture_latent.npy", texlat.data(), {tN,32});
             run.reset(); m.free();
             for (int n = 0; n < tN; ++n) for (int c = 0; c < 32; ++c) texlat[(size_t)c + 32*n] = texlat[(size_t)c + 32*n]*TEX_STD[c] + TEX_MEAN[c];
             stage("texture_decode", "ggml", "fp16 weights, fp32 activations");
             trellis::Model decoder = trellis::Model::load(M + "/tex_dec.gguf", gpu);
             note_backend(decoder);
             vector<float> pbr = trellis::tex_decode(decoder, texlat, tcoords, tsubs); decoder.free();
+            if (control && !control->capture_dir.empty())
+                npy::save(control->capture_dir + "/texture_features.npy", pbr.data(), {Mv,6});
             vector<float> decoded((size_t)Mv * 6);
             auto cl = [](float v){ return v < 0 ? 0.f : (v > 1 ? 1.f : v); };
             for (int i = 0; i < Mv; ++i)

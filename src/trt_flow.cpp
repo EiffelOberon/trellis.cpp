@@ -73,8 +73,9 @@ struct TrtFlowRunner::Impl {
     explicit Impl(int index) : device(index) {}
 };
 
-TrtFlowRunner::TrtFlowRunner(const std::string& path, int device, bool allow_probe) : impl_(std::make_unique<Impl>(device)) {
+TrtFlowRunner::TrtFlowRunner(const std::string& path, int device, bool allow_probe, int weight_budget_mib, bool require_resident_engine) : impl_(std::make_unique<Impl>(device)) {
     if (device < 0) throw std::invalid_argument("TensorRT requires a CUDA device");
+    if (weight_budget_mib < -1) throw std::invalid_argument("Invalid TensorRT weight budget");
     auto& p = *impl_;
     check_cuda(cudaSetDevice(device));
     using CreateRuntime = void* (*)(void*, int32_t);
@@ -91,15 +92,26 @@ TrtFlowRunner::TrtFlowRunner(const std::string& path, int device, bool allow_pro
     if (!file.read(bytes.data(), size)) throw std::runtime_error("Cannot read TensorRT engine: " + path);
     p.engine.reset(p.runtime->deserializeCudaEngine(bytes.data(), bytes.size()));
     if (!p.engine) throw std::runtime_error("TensorRT engine deserialization failed: " + path);
+    if (require_resident_engine && p.engine->getStreamableWeightsSize() > 0)
+        throw std::runtime_error("Resident profile requires an engine built without weight streaming");
     const std::string name = p.engine->getName();
     const std::string prefix = "trellis2.ss_flow.v1.512.";
     bool recognized = false;
-    for (const char* precision : {"fp32", "fp16", "bf16"}) {
+    for (const char* precision : {"fp32", "fp16", "bf16", "int8-bf16"}) {
         if (name == prefix + precision + ".full" || (allow_probe && name == prefix + precision + ".probe")) {
             p.precision = precision; recognized = true; break;
         }
     }
     if (!recognized) throw std::runtime_error("Engine is not a full, supported SS flow export (probes cannot generate assets)");
+    if (weight_budget_mib >= 0) {
+        if (p.engine->getStreamableWeightsSize() <= 0)
+            throw std::runtime_error("SS weight budget requires an engine built with --weight-streaming");
+        if (!p.engine->setWeightStreamingBudgetV2(static_cast<int64_t>(weight_budget_mib) << 20))
+            throw std::runtime_error("TensorRT rejected the SS weight budget");
+        fprintf(stderr, "[trellis] SS weight streaming: %d MiB budget, %lld MiB streamable, %lld MiB streaming scratch\n",
+                weight_budget_mib, static_cast<long long>(p.engine->getStreamableWeightsSize() >> 20),
+                static_cast<long long>(p.engine->getWeightStreamingScratchMemorySize() >> 20));
+    }
     if (p.engine->getNbIOTensors() != 4) throw std::runtime_error("SS engine must have exactly four I/O tensors");
     const char* names[] = {"latent", "timestep", "cond", "velocity"};
     const std::vector<std::vector<int64_t>> shapes = {{1,4096,8}, {1}, {1,1029,1024}, {1,4096,8}};
@@ -148,7 +160,7 @@ std::vector<float> TrtFlowRunner::forward(const std::vector<float>& latent, floa
 #else
 namespace trellis {
 struct TrtFlowRunner::Impl {};
-TrtFlowRunner::TrtFlowRunner(const std::string&, int, bool) {
+TrtFlowRunner::TrtFlowRunner(const std::string&, int, bool, int, bool) {
     throw std::runtime_error("TensorRT support is not built; configure with TRELLIS_TENSORRT=ON");
 }
 TrtFlowRunner::~TrtFlowRunner() = default;

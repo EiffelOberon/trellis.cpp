@@ -1,5 +1,6 @@
 #include "trellis_job.h"
 #include "trellis_model.h"
+#include "trellis_args.h"
 #include "flow_runner.h"
 #include "job_control.h"
 #include "mesh_glb.h"
@@ -29,7 +30,30 @@ int main() {
             a.free(); a.free();
         }
         trellis::JobRequest job;
+        require(job.profile == "bf16" && job.stream_flow_blocks == 0 && job.ss_weight_budget_mib == -1,
+                "default must be resident BF16");
+        {
+            trellis::TrellisParams p;
+            p.set_res(512); p.backend = "CUDA"; p.models = "example-models"; p.profile = "bf16";
+            trellis::resolve_precision_profile(p);
+            require(p.ss_engine == "example-models/ss_flow_bf16.plan", "BF16 engine resolution failed");
+            p.profile = "int8"; p.ss_engine.clear();
+            trellis::resolve_precision_profile(p);
+            require(p.ss_engine == "example-models/ss_flow_int8.plan", "INT8 engine resolution failed");
+            p.stream_flow_blocks = 5;
+            try { trellis::resolve_precision_profile(p); throw std::runtime_error("INT8 streaming accepted"); }
+            catch (const std::invalid_argument&) {}
+        }
         require(trellis::run_job(job).status == trellis::JobStatus::Failed, "empty image accepted");
+        job.stream_flow_blocks = 4;
+        require(trellis::run_job(job).error == "Invalid 512-preset job settings", "invalid streaming group accepted");
+        job.stream_flow_blocks = 0; job.ss_weight_budget_mib = 1024;
+        require(trellis::run_job(job).error == "Invalid 512-preset job settings", "SS budget without engine accepted");
+        job.ss_engine = "not-opened.plan";
+        require(trellis::run_job(job).error == "bf16/int8 profiles require resident weights; streaming is disabled",
+                "default BF16 profile accepted streaming");
+        job.ss_engine.clear();
+        job.ss_weight_budget_mib = -1;
         std::atomic_bool cancel{true};
         require(trellis::run_job(job, &cancel).status == trellis::JobStatus::Cancelled, "pre-cancel ignored");
         cancel = false;

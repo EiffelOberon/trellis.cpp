@@ -11,6 +11,23 @@
 
 namespace trellis {
 
+void resolve_precision_profile(TrellisParams& p) {
+#if defined(TRELLIS_USE_TENSORRT) && defined(TRELLIS_USE_CUDA)
+    if (p.profile.empty() && p.ss_engine.empty() && !p.cascade &&
+        p.family == ModelFamily::Trellis && p.gpu >= 0 && (p.backend.empty() || p.backend == "CUDA"))
+        p.profile = "bf16";
+#endif
+    if (p.profile.empty() || p.profile == "native") return;
+    if (p.profile != "bf16" && p.profile != "int8")
+        throw std::invalid_argument("profile must be bf16, int8, or native");
+    if (p.cascade || p.family != ModelFamily::Trellis || p.gpu < 0 ||
+        (!p.backend.empty() && p.backend != "CUDA"))
+        throw std::invalid_argument("bf16/int8 profiles require the TRELLIS.2 512 preset on CUDA");
+    if (p.stream_flow_blocks != 0 || p.ss_weight_budget_mib != -1)
+        throw std::invalid_argument("bf16/int8 profiles require resident weights; streaming is disabled");
+    if (p.ss_engine.empty()) p.ss_engine = p.models + "/ss_flow_" + p.profile + ".plan";
+}
+
 bool parse_camera_arg(const std::string& name, const char* value, TrellisParams& p, std::string& error) {
     char* end = nullptr;
     errno = 0;
@@ -92,6 +109,9 @@ void print_usage(const char* argv0, bool server) {
         "      --copyright TEXT    glTF asset.copyright metadata\n"
         "  -m, --models DIR        GGUF model directory\n"
         "      --ss-engine FILE    TensorRT SS engine (TRELLIS.2, --res 512, CUDA only)\n"
+        "      --profile bf16|int8  Resident 512 precision profile (native keeps legacy selection)\n"
+        "      --stream-flow-blocks N  CUDA sparse flow weight streaming (N divides 30; 0=resident)\n"
+        "      --ss-weight-budget-mib N  SS GPU weight budget (-1=default; requires streaming engine)\n"
         "      --capture-dir DIR   save native noise and SS parity fixtures\n"
         "      --model FAMILY      trellis (default) | pixal3d — which flow weights the model\n"
         "                          directory holds. pixal3d swaps the DINOv3 cross-attention for\n"
@@ -212,7 +232,10 @@ bool parse_args(int argc, char** argv, TrellisParams& p) {
         else if (a == "--copyright")            { const char* v = need(a.c_str()); if (!v) return false; p.copyright = v; }
         else if (a == "-m" || a == "--models")  { const char* v = need(a.c_str()); if (!v) return false; p.models = v; }
         else if (a == "--ss-engine")            { const char* v = need(a.c_str()); if (!v) return false; p.ss_engine = v; }
+        else if (a == "--profile")              { const char* v = need(a.c_str()); if (!v) return false; p.profile = v; }
         else if (a == "--capture-dir")          { const char* v = need(a.c_str()); if (!v) return false; p.capture_dir = v; }
+        else if (a == "--ss-weight-budget-mib") { const char* v = need(a.c_str()); if (!v || !integer(v, p.ss_weight_budget_mib)) return false; if (p.ss_weight_budget_mib < -1) return false; }
+        else if (a == "--stream-flow-blocks")   { const char* v = need(a.c_str()); if (!v || !integer(v, p.stream_flow_blocks)) return false; if (p.stream_flow_blocks < 0 || p.stream_flow_blocks > 30 || (p.stream_flow_blocks && 30 % p.stream_flow_blocks)) { fprintf(stderr, "stream-flow-blocks must be 0 or a positive divisor of 30\n"); return false; } }
         else if (a == "--model")                { const char* v = need(a.c_str()); if (!v) return false;
                                                   if      (std::strcmp(v, "trellis") == 0) p.family = ModelFamily::Trellis;
                                                   else if (std::strcmp(v, "pixal3d") == 0) p.family = ModelFamily::Pixal3D;

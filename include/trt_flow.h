@@ -8,7 +8,8 @@ namespace trellis {
 // transfers and synchronization are included in forward timing.
 class TrtFlowRunner {
 public:
-    explicit TrtFlowRunner(const std::string& engine_path, int device = 0, bool allow_probe = false);
+    explicit TrtFlowRunner(const std::string& engine_path, int device = 0, bool allow_probe = false,
+                           int weight_budget_mib = -1, bool require_resident_engine = false);
     ~TrtFlowRunner();
     TrtFlowRunner(const TrtFlowRunner&) = delete;
     TrtFlowRunner& operator=(const TrtFlowRunner&) = delete;

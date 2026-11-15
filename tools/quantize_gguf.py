@@ -39,7 +39,10 @@ def quantize_file(src, dst, qname):
     q_bytes = keep_bytes = 0
     for t in r.tensors:
         d = t.data
-        if t.tensor_type == GT.F16 and d.ndim == 2 and d.shape[-1] % bs == 0 and d.shape[-1] >= K_MIN:
+        # Shape alone does not identify a matmul: RMSNorm gamma is [heads, dim]
+        # too, but is consumed by elementwise multiplication and must stay floating point.
+        if (t.name.endswith('.weight') and t.tensor_type == GT.F16 and d.ndim == 2
+                and d.shape[-1] % bs == 0 and d.shape[-1] >= K_MIN):
             q = gguf.quants.quantize(d.astype(np.float32), qtype)
             w.add_tensor(t.name, q, raw_dtype=qtype)
             nq += 1; q_bytes += q.nbytes

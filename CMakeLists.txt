@@ -98,6 +98,7 @@ add_library(trellis_core STATIC
   src/trellis_model.cpp
   src/dit.cpp
   src/flow_runner.cpp
+  src/streamed_dit.cpp
   src/ss_decoder.cpp
   src/mesh_glb.cpp
   src/dinov3.cpp
@@ -505,6 +506,10 @@ add_executable(trellis-job src/job_main.cpp)
 target_link_libraries(trellis-job PRIVATE trellis_core Threads::Threads)
 add_executable(trellis-test-job src/test_job.cpp)
 target_link_libraries(trellis-test-job PRIVATE trellis_core Threads::Threads)
+add_executable(trellis-test-streamed-flow src/test_streamed_flow.cpp)
+target_link_libraries(trellis-test-streamed-flow PRIVATE trellis_core)
+add_executable(trellis-test-sparse-chunk src/test_sparse_chunk.cpp)
+target_link_libraries(trellis-test-sparse-chunk PRIVATE trellis_core)
 add_executable(trellis-test-trt src/test_trt.cpp)
 target_link_libraries(trellis-test-trt PRIVATE trellis_core)
 add_executable(trellis-compare-ss src/compare_ss.cpp)

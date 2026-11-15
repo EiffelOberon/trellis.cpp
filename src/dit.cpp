@@ -351,6 +351,30 @@ static T* block(ggml_context* c, const Model& m, int i, T* h, T* mod, T* cond, T
     return h;
 }
 
+ggml_tensor* build_dit_input(ggml_context* c, const Model& m, const DiTParams& p,
+                            T* h0, T* tfreq, T** mod) {
+    g_cast_f32 = p.cast_f32;
+    T* h = lin(c, m, "input_layer", h0);
+    T* te = lin(c, m, "t_embedder.mlp.0", tfreq);
+    te = ggml_silu(c, te);
+    te = lin(c, m, "t_embedder.mlp.2", te);
+    *mod = lin(c, m, "adaLN_modulation.1", ggml_silu(c, te));
+    return h;
+}
+
+ggml_tensor* build_dit_blocks(ggml_context* c, const Model& m, const DiTParams& p,
+                             int first, int count, T* h, T* mod, T* cond, T* proj, T* cos, T* sin) {
+    g_cast_f32 = p.cast_f32;
+    for (int i = first; i < first + count; ++i)
+        h = block(c, m, i, h, mod, cond, proj, cos, sin, p);
+    return h;
+}
+
+ggml_tensor* build_dit_output(ggml_context* c, const Model& m, const DiTParams& p, T* h) {
+    g_cast_f32 = p.cast_f32;
+    return lin(c, m, "out_layer", layernorm(c, h, p.final_ln_eps));
+}
+
 ggml_tensor* build_dit_dense(ggml_context* c, const Model& m, const DiTParams& p,
                              T* h0, T* tfreq, T* cond, T* proj, T* cos, T* sin,
                              std::map<std::string, T*>* inter) {
@@ -358,13 +382,9 @@ ggml_tensor* build_dit_dense(ggml_context* c, const Model& m, const DiTParams& p
     if (p.proj_mode && !proj) throw std::runtime_error("build_dit_dense: proj mode needs a proj input");
     auto keep = [&](const char* n, T* t) { if (inter) (*inter)[n] = t; ggml_set_name(t, n); return t; };
 
-    T* h = lin(c, m, "input_layer", h0);                       // [d_model, L]
+    T* mod = nullptr;
+    T* h = build_dit_input(c, m, p, h0, tfreq, &mod);
     keep("after_input_layer", h);
-
-    T* te = lin(c, m, "t_embedder.mlp.0", tfreq);
-    te = ggml_silu(c, te);
-    te = lin(c, m, "t_embedder.mlp.2", te);                    // [d_model]
-    T* mod = lin(c, m, "adaLN_modulation.1", ggml_silu(c, te));// [6*d_model]
     keep("t_emb_mod", mod);
 
     // FlashAttention padding masks used to be built once at full [Lk_pad,Lq_pad] size.
