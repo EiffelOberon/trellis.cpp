@@ -25,6 +25,8 @@ static void metrics(const std::string& path, const trellis::JobResult& result, c
         result.status == trellis::JobStatus::Cancelled ? "cancelled" : "failed")
         << ",\n  \"error\": " << quote_json(result.error) << ",\n  \"seed\": " << m.seed
         << ",\n  \"profile\": " << quote_json(request.profile)
+        << ",\n  \"device_uuid\": " << quote_json(m.device_uuid)
+        << ",\n  \"device_name\": " << quote_json(m.device_name)
         << ",\n  \"stream_flow_blocks\": " << request.stream_flow_blocks
         << ",\n  \"ss_weight_budget_mib\": " << request.ss_weight_budget_mib
         << ",\n  \"seconds\": " << m.seconds << ",\n  \"idle_device_bytes\": " << m.idle_device_bytes
@@ -61,6 +63,14 @@ int main(int argc, char** argv) {
             else if (arg == "--profile" && i + 1 < argc) request.profile = argv[++i];
             else if (arg == "--ss-engine" && i + 1 < argc) request.ss_engine = argv[++i];
             else if (arg == "--capture-dir" && i + 1 < argc) request.capture_dir = argv[++i];
+            else if (arg == "--seed" && i + 1 < argc) {
+                const std::string value = argv[++i];
+                size_t used = 0;
+                const auto seed = std::stoull(value, &used);
+                if (used != value.size() || value.empty() || value[0] == '-' || seed > UINT32_MAX)
+                    throw std::invalid_argument("Seed must be an unsigned 32-bit integer");
+                request.seed = static_cast<uint32_t>(seed);
+            }
             else if (arg == "--stream-flow-blocks" && i + 1 < argc) request.stream_flow_blocks = std::stoi(argv[++i]);
             else if (arg == "--ss-weight-budget-mib" && i + 1 < argc) request.ss_weight_budget_mib = std::stoi(argv[++i]);
             else if (arg == "--repeat" && i + 1 < argc) repeats = std::stoi(argv[++i]);

@@ -5,7 +5,22 @@
 #include <string>
 #include <vector>
 
+#if defined(_WIN32) && defined(TRELLIS_JOB_SHARED)
+# if defined(TRELLIS_JOB_EXPORTS)
+#  define TRELLIS_JOB_API __declspec(dllexport)
+# else
+#  define TRELLIS_JOB_API __declspec(dllimport)
+# endif
+#else
+# define TRELLIS_JOB_API
+#endif
+#if defined(TRELLIS_JOB_SHARED) && defined(_MSC_VER) && _ITERATOR_DEBUG_LEVEL != 0
+# error "The Trellis worker SDK requires the matched Release toolchain and CRT"
+#endif
+
 namespace trellis {
+inline constexpr uint32_t kJobApiVersion = 2;
+TRELLIS_JOB_API uint32_t job_api_version() noexcept;
 struct JobProgress {
     std::string stage;
     int step = 0;
@@ -19,6 +34,8 @@ struct StageMetrics {
     uint64_t sampled_peak_device_bytes = 0; // cudaMemGetInfo; see benchmark.py for device-wide WDDM usage
 };
 struct JobMetrics {
+    std::string device_uuid;
+    std::string device_name;
     uint32_t seed = 0;
     double seconds = 0;
     uint64_t idle_device_bytes = 0;
@@ -29,6 +46,7 @@ struct JobMetrics {
     std::vector<StageMetrics> stages;
 };
 enum class JobStatus { Success, Cancelled, Failed };
+enum class JobErrorCode { None, InvalidArgument, MissingModels, DeviceUnavailable, Backend, Cancelled, ResourceLimit };
 struct JobRequest {
     std::vector<uint8_t> image;  // encoded PNG/JPEG/etc.; borrowed only during run_job
     std::string models = "models/f16";
@@ -37,6 +55,8 @@ struct JobRequest {
     std::string capture_dir;    // optional native forward/noise fixtures, for offline parity
     uint32_t seed = 42;         // explicit, including zero
     int gpu = 0;
+    std::string device_uuid;   // optional CUDA UUID; takes precedence over ordinal
+    std::string expected_device_name; // optional engine provenance; no cross-device plan fallback
     int resolution = 512;      // first library preset; other values are rejected
     int atlas = 1024;
     int faces = 150000;
@@ -47,6 +67,7 @@ struct JobRequest {
 };
 struct JobResult {
     JobStatus status = JobStatus::Failed;
+    JobErrorCode error_code = JobErrorCode::None;
     std::vector<uint8_t> glb;
     JobMetrics metrics;
     std::string error;
@@ -55,6 +76,6 @@ struct JobResult {
 // GGML runtime flags are process-wide. Callbacks execute on the calling thread;
 // they must not start another job. Cancellation is checked between GPU forwards
 // and stages, and all in-flight work is drained before returning.
-JobResult run_job(const JobRequest& request, const std::atomic_bool* cancel = nullptr,
+TRELLIS_JOB_API JobResult run_job(const JobRequest& request, const std::atomic_bool* cancel = nullptr,
                   const std::function<void(const JobProgress&)>& progress = {});
 }

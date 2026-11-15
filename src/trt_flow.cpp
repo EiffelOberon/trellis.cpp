@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstdio>
 #include <fstream>
+#include <filesystem>
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -44,7 +45,23 @@ struct RuntimeLibrary {
     RuntimeLibrary() {
 #ifdef _WIN32
         const std::wstring name = L"nvinfer_" + std::to_wstring(NV_TENSORRT_MAJOR) + L".dll";
-        handle = LoadLibraryW(name.c_str());
+        HMODULE owner = nullptr;
+        if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                reinterpret_cast<LPCWSTR>(&check_cuda), &owner))
+            throw std::runtime_error("Cannot locate the Trellis runtime module");
+        std::wstring location(32768, L'\0');
+        const DWORD size = GetModuleFileNameW(owner, location.data(), static_cast<DWORD>(location.size()));
+        if (!size || size >= location.size()) throw std::runtime_error("Cannot resolve the Trellis runtime directory");
+        location.resize(size);
+        const auto module_path = std::filesystem::path(location);
+        const auto beside_module = module_path.parent_path() / name;
+        if (std::filesystem::is_regular_file(beside_module))
+            handle = LoadLibraryExW(beside_module.c_str(), nullptr,
+                LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+        // Preserve the standalone CLI's documented PATH setup. The in-process
+        // SDK always loads its packaged runtime beside the worker DLL.
+        else if (module_path.extension() != L".dll") handle = LoadLibraryW(name.c_str());
+        if (!handle) throw std::runtime_error("Cannot load matching TensorRT runtime beside the worker DLL (standalone CLI also accepts PATH)");
 #else
         const std::string name = "libnvinfer.so." + std::to_string(NV_TENSORRT_MAJOR);
         handle = dlopen(name.c_str(), RTLD_NOW | RTLD_LOCAL);

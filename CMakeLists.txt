@@ -516,3 +516,59 @@ add_executable(trellis-compare-ss src/compare_ss.cpp)
 target_link_libraries(trellis-compare-ss PRIVATE trellis_core)
 enable_testing()
 add_test(NAME trellis-job-contract COMMAND trellis-test-job)
+
+# Standalone SDK: the private static core never crosses the editor boundary.
+# Consumers must use the same MSVC toolset and dynamic CRT as this package.
+option(TRELLIS_BUILD_WORKER_SDK "Build the installable native worker DLL" OFF)
+if(TRELLIS_BUILD_WORKER_SDK)
+  if(TARGET ggml-cuda)
+    include(cmake/TrellisGgmlSoftmax.cmake)
+  endif()
+  include(GNUInstallDirs)
+  include(CMakePackageConfigHelpers)
+  add_library(trellis_worker SHARED src/trellis_job.cpp)
+  add_library(Trellis::worker ALIAS trellis_worker)
+  target_link_libraries(trellis_worker PRIVATE trellis_core)
+  target_compile_definitions(trellis_worker PRIVATE TRELLIS_JOB_EXPORTS PUBLIC TRELLIS_JOB_SHARED)
+  target_include_directories(trellis_worker PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  set_target_properties(trellis_worker PROPERTIES EXPORT_NAME worker)
+  install(TARGETS trellis_worker EXPORT TrellisTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT TrellisSDK
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT TrellisSDK
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT TrellisSDK)
+  install(FILES include/trellis_job.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT TrellisSDK)
+  install(EXPORT TrellisTargets NAMESPACE Trellis:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Trellis COMPONENT TrellisSDK)
+  configure_package_config_file(cmake/TrellisConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/TrellisConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Trellis)
+  write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/TrellisConfigVersion.cmake
+    VERSION ${PROJECT_VERSION} COMPATIBILITY ExactVersion)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/TrellisConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/TrellisConfigVersion.cmake DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Trellis COMPONENT TrellisSDK)
+  foreach(dependency ggml ggml-base ggml-cpu ggml-cuda)
+    if(TARGET ${dependency})
+      get_target_property(kind ${dependency} TYPE)
+      if(kind STREQUAL "SHARED_LIBRARY")
+        install(FILES $<TARGET_FILE:${dependency}> DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT TrellisSDK)
+      endif()
+    endif()
+  endforeach()
+  if(WIN32)
+    install(FILES $<TARGET_RUNTIME_DLLS:trellis_worker> DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT TrellisSDK)
+    foreach(_cuda_runtime cudart64_${CUDAToolkit_VERSION_MAJOR} cublas64_${CUDAToolkit_VERSION_MAJOR} cublasLt64_${CUDAToolkit_VERSION_MAJOR})
+      find_file(_trellis_${_cuda_runtime} NAMES ${_cuda_runtime}.dll
+        HINTS "${CUDAToolkit_BIN_DIR}/x64" "${CUDAToolkit_BIN_DIR}" REQUIRED)
+      install(FILES "${_trellis_${_cuda_runtime}}" DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT TrellisSDK)
+    endforeach()
+    set(TRELLIS_TENSORRT_RUNTIME_DIR "" CACHE PATH "Directory containing the matching TensorRT runtime DLL")
+    if(TRELLIS_TENSORRT_RUNTIME_DIR)
+      file(GLOB _trellis_infer_runtime "${TRELLIS_TENSORRT_RUNTIME_DIR}/nvinfer_[0-9]*.dll")
+      if(NOT _trellis_infer_runtime)
+        message(FATAL_ERROR "No nvinfer runtime found in TRELLIS_TENSORRT_RUNTIME_DIR")
+      endif()
+      install(FILES ${_trellis_infer_runtime} DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT TrellisSDK)
+    endif()
+  endif()
+endif()

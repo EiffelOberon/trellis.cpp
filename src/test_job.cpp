@@ -30,6 +30,7 @@ int main() {
             a.free(); a.free();
         }
         trellis::JobRequest job;
+        require(trellis::job_api_version() == trellis::kJobApiVersion, "job SDK ABI version mismatch");
         require(job.profile == "bf16" && job.stream_flow_blocks == 0 && job.ss_weight_budget_mib == -1,
                 "default must be resident BF16");
         {
@@ -44,7 +45,9 @@ int main() {
             try { trellis::resolve_precision_profile(p); throw std::runtime_error("INT8 streaming accepted"); }
             catch (const std::invalid_argument&) {}
         }
-        require(trellis::run_job(job).status == trellis::JobStatus::Failed, "empty image accepted");
+        const auto empty = trellis::run_job(job);
+        require(empty.status == trellis::JobStatus::Failed && empty.error_code == trellis::JobErrorCode::InvalidArgument,
+                "empty image must return a typed argument failure");
         job.stream_flow_blocks = 4;
         require(trellis::run_job(job).error == "Invalid 512-preset job settings", "invalid streaming group accepted");
         job.stream_flow_blocks = 0; job.ss_weight_budget_mib = 1024;
@@ -55,7 +58,9 @@ int main() {
         job.ss_engine.clear();
         job.ss_weight_budget_mib = -1;
         std::atomic_bool cancel{true};
-        require(trellis::run_job(job, &cancel).status == trellis::JobStatus::Cancelled, "pre-cancel ignored");
+        const auto cancelled = trellis::run_job(job, &cancel);
+        require(cancelled.status == trellis::JobStatus::Cancelled && cancelled.error_code == trellis::JobErrorCode::Cancelled,
+                "pre-cancel must return a typed cancellation");
         cancel = false;
         trellis::RunControl control; control.cancel = &cancel;
         trellis::SamplerParams params; params.steps = 4; params.guidance_strength = 1; params.control = &control;
@@ -80,7 +85,16 @@ int main() {
         int size = 0;
         require(!trellis::threshold_cutout(input, size).empty() && size > 0, "memory preprocessing failed");
         job.image = png; job.models = "directory-that-does-not-exist";
-        require(trellis::run_job(job).status == trellis::JobStatus::Failed, "missing model directory accepted");
+        const auto missing = trellis::run_job(job);
+        require(missing.status == trellis::JobStatus::Failed && missing.error_code == trellis::JobErrorCode::MissingModels,
+                "missing model directory must return a typed failure before GPU initialization");
+        // Oversized dimensions must be rejected from encoded metadata, before
+        // decoding pixel storage or initializing a CUDA device.
+        job.image[16] = 0; job.image[17] = 0; job.image[18] = 0x20; job.image[19] = 1;
+        const auto oversized = trellis::run_job(job);
+        require(oversized.error_code == trellis::JobErrorCode::InvalidArgument &&
+                oversized.error.find("Decoded image exceeds") != std::string::npos,
+                "oversized decoded image was not rejected before model/device lookup");
         const float verts[] = {0,0,0, 1,0,0, 0,1,0}, uv[] = {0,0,1,0,0,1};
         const int32_t faces[] = {0,1,2};
         std::vector<uint8_t> glb;
