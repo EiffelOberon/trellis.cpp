@@ -29,7 +29,12 @@ def main():
     parser.add_argument('--exe', type=Path, default=Path('build-baseline/trellis-job.exe'))
     parser.add_argument('--models', type=Path, default=Path('models/f16'))
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--require-quality', action='store_true', help='Exit nonzero when any quality gate fails')
+    parser.add_argument('--int8-engine', type=Path, help='Evaluate a candidate resident mixed INT8 engine without replacing the installed engine')
     args = parser.parse_args()
+    if not 0 <= args.seed <= 0xffffffff:
+        parser.error('--seed must be an unsigned 32-bit integer')
     args.output.mkdir(parents=True, exist_ok=True)
     paths = ['ss_flow_bf16.plan', 'ss_flow_int8.plan', 'shape_flow_512.gguf', 'tex_flow_512.gguf',
              'int8/shape_flow_512.gguf', 'int8/tex_flow_512.gguf']
@@ -37,9 +42,11 @@ def main():
                   input_sha256=sha256(args.image), executable_sha256=sha256(args.exe),
                   model_sha256={name: sha256(args.models/name) for name in paths},
                   gpu=subprocess.check_output(['nvidia-smi', '--query-gpu=name,driver_version', '--format=csv,noheader'], text=True).strip(),
-                  commit=subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(),
+                  commit=subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(), seed=args.seed,
                   sample_ms=dict(worker_cuda=20, device_wide=50, process_rss=20),
-                  note='Fresh sequential workers, seed 42, 512, 12 steps, 150K faces, 1K PNG atlas; streaming disabled in both profiles. Source may be uncommitted.')
+                  note=f'Fresh sequential workers, seed {args.seed}, 512, 12 steps, 150K faces, 1K PNG atlas; streaming disabled in both profiles. Source may be uncommitted.')
+    if args.int8_engine:
+        report['candidate_int8_engine'] = dict(path=str(args.int8_engine.resolve()), sha256=sha256(args.int8_engine))
     # No profile/engine override on the control: verify the actual new default.
     report['bf16'] = run(args, 'bf16', profile='default')
     report['int8'] = run(args, 'int8', profile='int8')
@@ -69,12 +76,15 @@ def main():
                              glb_validation=[validate(args.output/mode/'asset.glb') for mode in ['bf16','int8']])
     report['quality']['passed'] = (occupancy >= .95 and all(x['passed'] for x in silhouettes) and all(finite.values())
                                   and report['quality']['identical_initial_noise']
+                                  and all(value['valid'] for value in report['quality']['glb_validation'])
                                   and all(report[m]['worker']['repaired_nonfinite'] == 0 for m in ['bf16','int8']))
     report['quality']['scope'] = 'Geometry/finite/PBR structure checks; visual texture/material acceptance is separate. INT8 is lossy; byte parity is not expected.'
     (args.output/'comparison.json').write_text(json.dumps(report, indent=2)+'\n')
     print(json.dumps(report['quality'], indent=2), flush=True)
     # Quality failures are reported without masking a successful experimental execution.
     print('QUALITY:', 'PASS' if report['quality']['passed'] else 'FAIL (experimental)', flush=True)
+    if args.require_quality and not report['quality']['passed']:
+        raise SystemExit(1)
 
 
 if __name__ == '__main__':

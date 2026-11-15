@@ -23,8 +23,11 @@ def run(args, name, streamed=False, profile=None):
     capture = root / "capture"
     command = [str(args.exe.resolve()), str(args.image.resolve()), str((root / "asset.glb").resolve()),
                str(args.models.resolve()), "--capture-dir", str(capture.resolve())]
+    command += ["--seed", str(getattr(args, 'seed', 42))]
     if profile is not None:
         if profile != "default": command += ["--profile", profile]
+        if profile == "int8" and getattr(args, 'int8_engine', None):
+            command += ["--ss-engine", str(args.int8_engine.resolve())]
     else:
         command += ["--profile", "native", "--ss-engine",
                     str((args.stream_engine if streamed else args.baseline_engine).resolve())]

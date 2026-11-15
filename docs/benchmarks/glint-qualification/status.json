@@ -1,0 +1,430 @@
+{
+  "schema_version": 1,
+  "production_qualified": false,
+  "date": "2026-11-15",
+  "gpu": "NVIDIA GeForce RTX 5080, GPU-06e1b7e9-1fe1-1ff7-5e25-fe203eaefd80, 617.14",
+  "base_commit": "e12961b5e85efac12e0b0f3bcc72fbf593e31ee7",
+  "tested_executable_sha256": "370aaa3b3e7981d1c68f5da5144d74784d273127d3253298144698b282ffba53",
+  "source_diff_sha256": "05b333c70925a4e7a8927f9a9ce7d1aac9c922d2381599b560f01266e7f5d849",
+  "candidate_model_manifest_sha256": "505d64ed7e774bd07ccfc84b6bf3adbd8b4df8dd670bf3125ee2d5f34fba6c8c",
+  "candidate": "BF16 FP32 residuals, first-five-block INT8 with matching calibration; selective Q8_0 sparse flows",
+  "full_matrix_completed": false,
+  "completed_cases": 3,
+  "expected_cases": 24,
+  "gate": 0.95,
+  "cases": [
+    {
+      "int8_vs_bf16": {
+        "ss_occupancy_iou": 0.9925426467389615,
+        "finite": true,
+        "identical_initial_noise": true,
+        "silhouettes": [
+          {
+            "angle": 0,
+            "iou": 0.9912134123406853,
+            "passed": true
+          },
+          {
+            "angle": 90,
+            "iou": 0.9860520422232111,
+            "passed": true
+          },
+          {
+            "angle": 180,
+            "iou": 0.9912256902909149,
+            "passed": true
+          },
+          {
+            "angle": 300,
+            "iou": 0.9947410471937659,
+            "passed": true
+          }
+        ],
+        "glbs": [
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-0\\bf16\\asset.glb",
+            "vertices": 100229,
+            "triangles": 143534,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9128732,
+            "valid": true
+          },
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-0\\int8\\asset.glb",
+            "vertices": 91136,
+            "triangles": 136000,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 8374248,
+            "valid": true
+          }
+        ],
+        "passed": true
+      },
+      "seed": 0,
+      "bf16_vs_native": {
+        "ss_occupancy_iou": 0.9745858721944947,
+        "finite": true,
+        "identical_initial_noise": true,
+        "silhouettes": [
+          {
+            "angle": 0,
+            "iou": 0.985632201604907,
+            "passed": true
+          },
+          {
+            "angle": 90,
+            "iou": 0.9840202705155477,
+            "passed": true
+          },
+          {
+            "angle": 180,
+            "iou": 0.9856442533903211,
+            "passed": true
+          },
+          {
+            "angle": 300,
+            "iou": 0.9944985003359903,
+            "passed": true
+          }
+        ],
+        "glbs": [
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-0\\native\\asset.glb",
+            "vertices": 103493,
+            "triangles": 145424,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9015536,
+            "valid": true
+          },
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-0\\bf16\\asset.glb",
+            "vertices": 100229,
+            "triangles": 143534,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9128732,
+            "valid": true
+          }
+        ],
+        "passed": true
+      },
+      "passed": true,
+      "fixture": "chest"
+    },
+    {
+      "int8_vs_bf16": {
+        "ss_occupancy_iou": 0.9729435416317641,
+        "finite": true,
+        "identical_initial_noise": true,
+        "silhouettes": [
+          {
+            "angle": 0,
+            "iou": 0.9821661810509394,
+            "passed": true
+          },
+          {
+            "angle": 90,
+            "iou": 0.9870460930184164,
+            "passed": true
+          },
+          {
+            "angle": 180,
+            "iou": 0.982147678821483,
+            "passed": true
+          },
+          {
+            "angle": 300,
+            "iou": 0.9948827292110874,
+            "passed": true
+          }
+        ],
+        "glbs": [
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-42\\bf16\\asset.glb",
+            "vertices": 102356,
+            "triangles": 147016,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9246256,
+            "valid": true
+          },
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-42\\int8\\asset.glb",
+            "vertices": 96591,
+            "triangles": 137718,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9032112,
+            "valid": true
+          }
+        ],
+        "passed": true
+      },
+      "seed": 42,
+      "bf16_vs_native": {
+        "ss_occupancy_iou": 0.9877554467150819,
+        "finite": true,
+        "identical_initial_noise": true,
+        "silhouettes": [
+          {
+            "angle": 0,
+            "iou": 0.991007045960464,
+            "passed": true
+          },
+          {
+            "angle": 90,
+            "iou": 0.9891408495688279,
+            "passed": true
+          },
+          {
+            "angle": 180,
+            "iou": 0.9910007039618466,
+            "passed": true
+          },
+          {
+            "angle": 300,
+            "iou": 0.9948318011036429,
+            "passed": true
+          }
+        ],
+        "glbs": [
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-42\\native\\asset.glb",
+            "vertices": 107724,
+            "triangles": 148898,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9829760,
+            "valid": true
+          },
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-42\\bf16\\asset.glb",
+            "vertices": 102356,
+            "triangles": 147016,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9246256,
+            "valid": true
+          }
+        ],
+        "passed": true
+      },
+      "passed": true,
+      "fixture": "chest"
+    },
+    {
+      "int8_vs_bf16": {
+        "ss_occupancy_iou": 0.9520136335097318,
+        "finite": true,
+        "identical_initial_noise": true,
+        "silhouettes": [
+          {
+            "angle": 0,
+            "iou": 0.9930221975021489,
+            "passed": true
+          },
+          {
+            "angle": 90,
+            "iou": 0.9897070467141726,
+            "passed": true
+          },
+          {
+            "angle": 180,
+            "iou": 0.9930600326140544,
+            "passed": true
+          },
+          {
+            "angle": 300,
+            "iou": 0.9956971024221681,
+            "passed": true
+          }
+        ],
+        "glbs": [
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-123\\bf16\\asset.glb",
+            "vertices": 97348,
+            "triangles": 137510,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 8766384,
+            "valid": true
+          },
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-123\\int8\\asset.glb",
+            "vertices": 105244,
+            "triangles": 145706,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9132360,
+            "valid": true
+          }
+        ],
+        "passed": true
+      },
+      "seed": 123,
+      "bf16_vs_native": {
+        "ss_occupancy_iou": 0.9394979872128818,
+        "finite": true,
+        "identical_initial_noise": true,
+        "silhouettes": [
+          {
+            "angle": 0,
+            "iou": 0.9909619027838095,
+            "passed": true
+          },
+          {
+            "angle": 90,
+            "iou": 0.9899964219691096,
+            "passed": true
+          },
+          {
+            "angle": 180,
+            "iou": 0.990943134971835,
+            "passed": true
+          },
+          {
+            "angle": 300,
+            "iou": 0.9963197732540895,
+            "passed": true
+          }
+        ],
+        "glbs": [
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-123\\native\\asset.glb",
+            "vertices": 99819,
+            "triangles": 149252,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 8847520,
+            "valid": true
+          },
+          {
+            "path": "out\\glint-qualification\\matrix-residual-v1\\chest-123\\bf16\\asset.glb",
+            "vertices": 97348,
+            "triangles": 137510,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 8766384,
+            "valid": true
+          }
+        ],
+        "passed": false
+      },
+      "passed": false,
+      "fixture": "chest"
+    }
+  ],
+  "holdouts_used_for_tuning": false,
+  "original_bundle_promoted": false,
+  "source_report": "out/glint-qualification/matrix-residual-v1/report.json",
+  "next_requirement": "Resolve BF16/native occupancy mismatch without relaxing gates, then run all fixtures/seeds and integrated memory/material qualification",
+  "bf16_engine_sha256": "5448e55003ab16a3fabe8285a76ac4324b9db6937ece439ef3d22d72463ba317",
+  "earlier_passing_case": {
+    "fixture": "knight",
+    "seed": 42,
+    "occupancy_iou": 0.980510752688172,
+    "minimum_silhouette_iou": 0.9533063847429519,
+    "passed": true,
+    "source_report": "out/glint-qualification/bf16-residual/knight/comparison.json"
+  },
+  "interpretation": "Same BF16 engine. Earlier case passes remain valid; wider fixture/seed coverage exposed chest seed 123 occupancy failure. No threshold relaxation or candidate promotion."
+}

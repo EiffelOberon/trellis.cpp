@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "seeds": [
+    0,
+    42,
+    123
+  ],
+  "resolution": 512,
+  "steps": 12,
+  "target_faces": 150000,
+  "atlas": 1024,
+  "occupancy_iou_min": 0.95,
+  "silhouette_iou_min": 0.95,
+  "fixtures": [
+    {
+      "name": "chest",
+      "path": "assets/showcase/chest/chest.png",
+      "sha256": "a33fe731d46bc34d8ade14fded885a1bf0c152e2792fbe8c10bf561c938420e7",
+      "holdout": false
+    },
+    {
+      "name": "axe",
+      "path": "assets/showcase/axe/axe.png",
+      "sha256": "f7f21b63607c5ba9a0fce954273351b2ddbde26aa62bb5d565d69a4a2ebc88a2",
+      "holdout": false
+    },
+    {
+      "name": "drone",
+      "path": "assets/showcase/drone/drone.png",
+      "sha256": "b09f3797ec8a61dff00d9b4d4026474727940a826172571784869e732b0c65bd",
+      "holdout": false
+    },
+    {
+      "name": "knight",
+      "path": "assets/showcase/knight/knight.png",
+      "sha256": "05315f8c5f8dc1d14e702ffa59846531b5b8d6e1b12709fd945cc14ff1d28192",
+      "holdout": false
+    },
+    {
+      "name": "sofa",
+      "path": "out/reference-room/inputs/sofa.png",
+      "sha256": "f87aa199ce2dcc1f0cb0390aa22401caf2b6a6ef7f75e2d004c8e47914463d74",
+      "holdout": false
+    },
+    {
+      "name": "cottage",
+      "path": "assets/showcase/cottage/cottage.png",
+      "sha256": "efe751ca84d4cd7d3e2ae6269eb62b510146be26a488b630e3012f2f73ed9a13",
+      "holdout": true
+    },
+    {
+      "name": "golem",
+      "path": "assets/showcase/golem/golem.png",
+      "sha256": "7d81765f6d853efbbb14d302adeaa2c38626b802a786795e50b18242c4991178",
+      "holdout": true
+    },
+    {
+      "name": "racer",
+      "path": "assets/showcase/racer/racer.png",
+      "sha256": "22838aac627bd7e207758c0dc5144d9b8e03975799c7cb6e8f6dda0cf4c18990",
+      "holdout": true
+    }
+  ]
+}
