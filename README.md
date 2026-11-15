@@ -24,7 +24,8 @@ Prebuilt binaries for Linux and Windows (Vulkan, ROCm, CUDA) are published on th
 
 For the native Windows/CUDA worker API and optional TensorRT sparse-structure
 flow backend, see [the implementation and RTX 5080 validation report](docs/onnx-tensorrt.md).
-The proposed Apple silicon path is documented in the [MLX / Metal plan](docs/mlx-metal-plan.md).
+For the Apple silicon worker with GGML Metal and optional MLX sparse-structure
+flow, see the [build and validation guide](docs/mlx-metal.md).
 
 New here? **Trellis Studio** is a one-command install that auto-detects your GPU
 runtime (CUDA / ROCm / Vulkan), downloads the server + weights, and gives you a

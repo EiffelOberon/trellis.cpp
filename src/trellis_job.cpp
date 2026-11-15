@@ -14,53 +14,106 @@
 #ifdef TRELLIS_USE_CUDA
 #include <cuda_runtime_api.h>
 #endif
+#ifdef __APPLE__
+#include <mach/mach.h>
+#endif
 
 namespace trellis {
 namespace {
+enum class MemoryCounter { Unavailable, CudaDevice, ProcessFootprint };
+
+void record_peak(std::optional<uint64_t>& peak, std::optional<uint64_t> sample) {
+    if (sample && (!peak || *sample > *peak)) peak = sample;
+}
+
 struct DeviceMonitor {
     std::atomic_bool stop{false};
-    std::atomic<uint64_t> peak{0};
     std::atomic<size_t> stage{64};
-    std::array<uint64_t, 64> stage_peaks{};
-    uint64_t idle = 0;
-    int device;
+    std::array<std::optional<uint64_t>, 64> stage_peaks{};
+    std::optional<uint64_t> idle, peak;
+    MemoryCounter counter = MemoryCounter::Unavailable;
     std::thread thread;
-    uint64_t used() {
+
+    std::optional<uint64_t> used() const {
 #ifdef TRELLIS_USE_CUDA
-        size_t free = 0, total = 0;
-        if (cudaMemGetInfo(&free, &total) == cudaSuccess) return total - free;
+        if (counter == MemoryCounter::CudaDevice) {
+            size_t free = 0, total = 0;
+            if (cudaMemGetInfo(&free, &total) == cudaSuccess) return total - free;
+        }
 #endif
-        return 0;
+#ifdef __APPLE__
+        if (counter == MemoryCounter::ProcessFootprint) {
+            task_vm_info_data_t info{};
+            mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+            if (task_info(mach_task_self(), TASK_VM_INFO, reinterpret_cast<task_info_t>(&info), &count) == KERN_SUCCESS &&
+                count >= TASK_VM_INFO_REV1_COUNT)
+                return info.phys_footprint;
+        }
+#endif
+        return std::nullopt;
     }
-    explicit DeviceMonitor(int gpu) : device(gpu) {
+
+    DeviceMonitor(const std::string& device, [[maybe_unused]] int gpu) {
 #ifdef TRELLIS_USE_CUDA
-        if (gpu < 0) return;
-        if (cudaSetDevice(gpu) != cudaSuccess) throw std::runtime_error("Cannot select CUDA device");
-        idle = used(); peak = idle;
-        thread = std::thread([this] {
-            cudaSetDevice(device);
+        if (device == "cuda") {
+            if (cudaSetDevice(gpu) != cudaSuccess) throw std::runtime_error("Cannot select CUDA device");
+            counter = MemoryCounter::CudaDevice;
+        }
+#endif
+#ifdef __APPLE__
+        if (device == "metal" || device == "cpu") counter = MemoryCounter::ProcessFootprint;
+#endif
+        if (counter == MemoryCounter::Unavailable) return;
+        idle = peak = used();
+        thread = std::thread([this
+#ifdef TRELLIS_USE_CUDA
+                              , gpu
+#endif
+        ] {
+#ifdef TRELLIS_USE_CUDA
+            if (counter == MemoryCounter::CudaDevice && cudaSetDevice(gpu) != cudaSuccess) return;
+#endif
             while (!stop.load(std::memory_order_relaxed)) {
-                const uint64_t current = used();
-                peak.store(std::max(peak.load(), current));
                 const size_t index = stage.load();
-                if (index < stage_peaks.size()) stage_peaks[index] = std::max(stage_peaks[index], current);
+                auto sample = used();
+                record_peak(peak, sample);
+                if (index < stage_peaks.size()) record_peak(stage_peaks[index], sample);
                 std::this_thread::sleep_for(std::chrono::milliseconds(20));
             }
         });
-#endif
     }
+
     void finish() {
         stop.store(true);
         if (thread.joinable()) thread.join();
     }
     ~DeviceMonitor() { finish(); }
+
+    void drain() const {
+#ifdef TRELLIS_USE_CUDA
+        if (counter == MemoryCounter::CudaDevice) cudaDeviceSynchronize();
+#endif
+        // GGML drains the owning backend/scheduler before freeing its buffers.
+    }
+
     void collect(JobMetrics& metrics) {
         finish();
-        metrics.idle_device_bytes = idle;
-        metrics.sampled_peak_device_bytes = peak.load();
-        metrics.idle_after_device_bytes = used();
-        for (size_t i = 0; i < metrics.stages.size() && i < stage_peaks.size(); ++i)
-            metrics.stages[i].sampled_peak_device_bytes = stage_peaks[i];
+        auto after = used();
+        record_peak(peak, after);
+        const bool cuda = counter == MemoryCounter::CudaDevice;
+        if (cuda) {
+            metrics.idle_device_bytes = idle;
+            metrics.sampled_peak_device_bytes = peak;
+            metrics.idle_after_device_bytes = after;
+        } else if (counter == MemoryCounter::ProcessFootprint) {
+            metrics.idle_footprint_bytes = idle;
+            metrics.sampled_peak_footprint_bytes = peak;
+            metrics.idle_after_footprint_bytes = after;
+        }
+        for (size_t i = 0; i < metrics.stages.size() && i < stage_peaks.size(); ++i) {
+            auto& stage_metrics = metrics.stages[i];
+            (cuda ? stage_metrics.sampled_peak_device_bytes : stage_metrics.sampled_peak_footprint_bytes) = stage_peaks[i];
+        }
     }
 };
 }
@@ -92,10 +145,20 @@ JobResult run_job(const JobRequest& request, const std::atomic_bool* cancel,
         TrellisParams params;
         params.models = request.models; params.seed = request.seed; params.gpu = request.gpu;
         params.set_res(512); params.tex = request.atlas; params.faces = request.faces;
-        params.steps = request.steps; params.webp = 0; params.ss_engine = request.ss_engine;
+        params.steps = request.steps; params.webp = 0;
+        params.ss_engine = request.ss_engine; params.ss_backend = request.ss_backend;
+        params.ss_weights = request.ss_weights; params.device = request.device;
         params.birefnet = request.neural_background_removal ? -1 : 0;
-        params.backend = "CUDA"; params.require_gpu = true;
-        DeviceMonitor monitor(request.gpu);
+        if (params.device.empty()) {
+#ifdef TRELLIS_USE_METAL
+            params.device = "metal";
+#else
+            params.device = "cuda";
+#endif
+        }
+        auto validated = params;
+        resolve_execution(validated);
+        DeviceMonitor monitor(params.device, request.gpu);
         control.on_stage = [&](size_t index) { monitor.stage = index; };
         try {
             if (trellis_run(params, &control) != 0) throw std::runtime_error("Generation pipeline failed");
@@ -104,9 +167,8 @@ JobResult run_job(const JobRequest& request, const std::atomic_bool* cancel,
             control.check_cancel();
             result.status = JobStatus::Success;
         } catch (...) {
-#ifdef TRELLIS_USE_CUDA
-            cudaDeviceSynchronize();
-#endif
+            monitor.drain();
+            control.finish_stage();
             monitor.collect(result.metrics);
             control.on_stage = {};
             throw;

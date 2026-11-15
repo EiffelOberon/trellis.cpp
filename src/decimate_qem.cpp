@@ -342,7 +342,7 @@ void simplify_round(std::vector<float>& verts, int& V, std::vector<int32_t>& fac
 } // namespace
 
 void decimate_qem(const std::vector<float>& in_verts, int V0, const std::vector<int32_t>& in_faces, int F0,
-                  int target_faces, std::vector<float>& ov, std::vector<int32_t>& of) {
+                  int target_faces, std::vector<float>& ov, std::vector<int32_t>& of, [[maybe_unused]] bool allow_gpu) {
     std::vector<float> verts = in_verts;
     std::vector<int32_t> faces = in_faces;
     int V = V0, F = F0;
@@ -354,18 +354,18 @@ void decimate_qem(const std::vector<float>& in_verts, int V0, const std::vector<
 #ifdef TRELLIS_HAVE_GPU_DECIMATE
     // Run the whole simplification on the GPU when a CUDA/HIP backend is built in; on any
     // failure (no device, alloc/kernel error) fall through to the validated CPU path.
-    if (!preserve_topology && !bounded_normals && !collision_guard && decimate_qem_gpu(in_verts, V0, in_faces, F0, target_faces, ov, of)) return;
+    if (allow_gpu && !preserve_topology && !bounded_normals && !collision_guard && decimate_qem_gpu(in_verts, V0, in_faces, F0, target_faces, ov, of)) return;
     // Any message above (e.g. "device kernel image is invalid" when the kernel was
     // built for a different GPU arch — issue #14) is non-fatal: the mesh is still
     // decimated correctly on the CPU below, just slower.
-    if (!preserve_topology && !bounded_normals && !collision_guard)
+    if (allow_gpu && !preserve_topology && !bounded_normals && !collision_guard)
         fprintf(stderr, "[decimate] GPU decimation unavailable; falling back to the CPU path (output is unaffected)\n");
 #endif
 
 #ifdef TRELLIS_HAVE_VK_DECIMATE
     // Same, on a headless Vulkan compute device (used in Vulkan-only builds with no CUDA/HIP
     // kernel). Falls through to the CPU path on any failure or when the device lacks 64-bit atomics.
-    if (!preserve_topology && !bounded_normals && !collision_guard && decimate_qem_vk(in_verts, V0, in_faces, F0, target_faces, ov, of)) return;
+    if (allow_gpu && !preserve_topology && !bounded_normals && !collision_guard && decimate_qem_vk(in_verts, V0, in_faces, F0, target_faces, ov, of)) return;
 #endif
 
     float thresh = 1e-8f;

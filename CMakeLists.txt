@@ -70,8 +70,12 @@ add_compile_definitions(GGML_MAX_NAME=128)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 add_subdirectory(thirdparty/ggml)
-set(GGML_RPATH "$ORIGIN")
-set(CMAKE_INSTALL_RPATH "$ORIGIN")
+if(APPLE)
+  set(GGML_RPATH "@loader_path")
+else()
+  set(GGML_RPATH "$ORIGIN")
+endif()
+set(CMAKE_INSTALL_RPATH "${GGML_RPATH}")
 
 # --- CUDA language (for the custom deformable-conv kernel) ------------------
 if(TARGET ggml-cuda)
@@ -110,6 +114,7 @@ add_library(trellis_core STATIC
   src/uv_bake.cpp
   src/uv_overlap_cover.cpp
   src/birefnet.cpp
+  src/deform_conv_cpu.cpp
   thirdparty/xatlas/xatlas.cpp
   thirdparty/meshoptimizer/simplifier.cpp
   src/tri_bvh.cpp
@@ -136,6 +141,29 @@ if(TRELLIS_TENSORRT)
   target_include_directories(trellis_core PRIVATE "${TENSORRT_INCLUDE_DIR}")
   target_compile_definitions(trellis_core PUBLIC TRELLIS_USE_TENSORRT)
   target_link_libraries(trellis_core PRIVATE ${CMAKE_DL_LIBS})
+endif()
+
+option(TRELLIS_MLX "Enable the optional Apple silicon MLX dense SS flow" OFF)
+if(TRELLIS_MLX)
+  if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64"
+     OR NOT TARGET ggml-metal OR (CMAKE_OSX_ARCHITECTURES AND NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64"))
+    message(FATAL_ERROR "TRELLIS_MLX requires an arm64 macOS build with GGML Metal")
+  endif()
+  find_package(MLX 0.32.4 EXACT CONFIG REQUIRED)
+  if(NOT MLX_BUILD_METAL)
+    message(FATAL_ERROR "TRELLIS_MLX requires MLX built with Metal")
+  endif()
+  add_library(trellis_mlx STATIC src/mlx_flow.cpp)
+  target_compile_features(trellis_mlx PRIVATE cxx_std_20)
+  target_include_directories(trellis_mlx PRIVATE include)
+  target_link_libraries(trellis_mlx PRIVATE mlx)
+  target_link_libraries(trellis_core PRIVATE trellis_mlx)
+  target_compile_definitions(trellis_core PRIVATE TRELLIS_USE_MLX)
+  find_file(TRELLIS_MLX_METALLIB mlx.metallib PATHS ${MLX_LIBRARY_DIRS} NO_DEFAULT_PATH REQUIRED)
+  configure_file("${TRELLIS_MLX_METALLIB}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/mlx.metallib" COPYONLY)
+  add_executable(trellis-probe-mlx src/probe_mlx.cpp)
+  target_include_directories(trellis-probe-mlx PRIVATE include)
+  target_link_libraries(trellis-probe-mlx PRIVATE trellis_mlx mlx)
 endif()
 
 add_executable(trellis-refine-core tools/mesh_quad_matching/selective_refinement_core.cpp)
@@ -248,11 +276,6 @@ else()
   # using HIP (both are minutes on the CPU at the larger decoder scales); otherwise
   # on the CPU, std::thread-parallel over output channels (deform_conv_cpu.cpp) --
   # no OpenMP/libomp dependency.
-  # HIP compiles deform_conv.cu below (issue #20); mirror the CUDA branch and skip
-  # the CPU source there so deform_conv2d_run has a single definition.
-  if(NOT TARGET ggml-hip)
-    target_sources(trellis_core PRIVATE src/deform_conv_cpu.cpp)
-  endif()
   if(TARGET ggml-vulkan)
     set(TRELLIS_BUILD_BACKEND "vulkan")
     find_package(Vulkan REQUIRED COMPONENTS glslc)
@@ -303,11 +326,13 @@ if(TARGET ggml-metal)
   # the Metal GPU automatically; the two custom kernels (deform_conv,
   # decimate_qem) run their CPU fallbacks on this backend.
   set(TRELLIS_BUILD_BACKEND "metal")
+  target_compile_definitions(trellis_core PRIVATE TRELLIS_USE_METAL)
   target_link_libraries(trellis_core PUBLIC ggml-metal)
   message(STATUS "trellis.cpp: Metal backend enabled")
 endif()
 if(TARGET ggml-hip)
   set(TRELLIS_BUILD_BACKEND "hip")
+  target_compile_definitions(trellis_core PRIVATE TRELLIS_USE_HIP)
   target_link_libraries(trellis_core PUBLIC ggml-hip)
   # Compile the self-contained QEM decimation kernel as HIP (ggml enabled the HIP
   # language via its subdirectory). hipcub headers live under the ROCm include root.

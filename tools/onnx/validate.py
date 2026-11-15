@@ -3,7 +3,6 @@ import argparse
 import json
 from pathlib import Path
 import numpy as np
-import onnxruntime as ort
 
 
 def compare(actual, reference, rtol, atol, max_rtol=0.05):
@@ -24,6 +23,7 @@ def compare(actual, reference, rtol, atol, max_rtol=0.05):
 
 
 def main():
+    import onnxruntime as ort
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("onnx", type=Path)
     parser.add_argument("fixtures", type=Path)

@@ -92,6 +92,8 @@ void print_usage(const char* argv0, bool server) {
         "      --copyright TEXT    glTF asset.copyright metadata\n"
         "  -m, --models DIR        GGUF model directory\n"
         "      --ss-engine FILE    TensorRT SS engine (TRELLIS.2, --res 512, CUDA only)\n"
+        "      --ss-backend NAME   ggml | tensorrt | mlx\n"
+        "      --ss-weights FILE   original SS safetensors (TRELLIS.2, --res 512, Metal only)\n"
         "      --capture-dir DIR   save native noise and SS parity fixtures\n"
         "      --model FAMILY      trellis (default) | pixal3d — which flow weights the model\n"
         "                          directory holds. pixal3d swaps the DINOv3 cross-attention for\n"
@@ -110,6 +112,7 @@ void print_usage(const char* argv0, bool server) {
         "                          the shape/texture stages then lose their high-frequency\n"
         "                          projection branch)\n"
         "      --gpu N             GPU index, <0 = CPU          (default 0)\n"
+        "      --device NAME       require metal | cuda | cpu\n"
         "      --backend NAME      force a ggml backend: Vulkan | HTP | CPU | ...\n"
         "                          (HTP is the Qualcomm Hexagon NPU. Default: auto.\n"
         "                          Run trellis-devices to list what this build sees.\n"
@@ -212,6 +215,8 @@ bool parse_args(int argc, char** argv, TrellisParams& p) {
         else if (a == "--copyright")            { const char* v = need(a.c_str()); if (!v) return false; p.copyright = v; }
         else if (a == "-m" || a == "--models")  { const char* v = need(a.c_str()); if (!v) return false; p.models = v; }
         else if (a == "--ss-engine")            { const char* v = need(a.c_str()); if (!v) return false; p.ss_engine = v; }
+        else if (a == "--ss-backend")           { const char* v = need(a.c_str()); if (!v) return false; p.ss_backend = v; }
+        else if (a == "--ss-weights")           { const char* v = need(a.c_str()); if (!v) return false; p.ss_weights = v; }
         else if (a == "--capture-dir")          { const char* v = need(a.c_str()); if (!v) return false; p.capture_dir = v; }
         else if (a == "--model")                { const char* v = need(a.c_str()); if (!v) return false;
                                                   if      (std::strcmp(v, "trellis") == 0) p.family = ModelFamily::Trellis;
@@ -228,6 +233,7 @@ bool parse_args(int argc, char** argv, TrellisParams& p) {
         else if (a == "--no-naf")               { p.naf = false; }
         else if (a == "--gpu")                  { const char* v = need(a.c_str()); if (!v) return false; p.gpu = atoi(v); }
         else if (a == "--backend")              { const char* v = need(a.c_str()); if (!v) return false; p.backend = v; }
+        else if (a == "--device")               { const char* v = need(a.c_str()); if (!v) return false; p.device = v; }
         else if (a == "-t" || a == "--threads") { const char* v = need(a.c_str()); if (!v) return false; p.threads = atoi(v); }
         else if (a == "-v" || a == "--verbose") { p.verbose = true; }
         else if (a == "--steps")                { const char* v = need(a.c_str()); if (!v) return false; p.steps = atoi(v); }

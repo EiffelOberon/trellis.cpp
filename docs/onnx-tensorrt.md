@@ -66,8 +66,9 @@ $env:PATH = "$PWD\.venv\Lib\site-packages\tensorrt_libs;$env:CUDA_PATH\bin\x64;$
 Omit `--ss-engine` for GGML SS flow. The CLI and server still work; the CLI also
 accepts `--ss-engine FILE` and `--capture-dir DIR`. An engine error fails the job
 instead of silently selecting GGML. TensorRT can be disabled with
-`-DTRELLIS_TENSORRT=OFF` (the default). A CPU build still compiles and runs the
-contract tests; the generation job API deliberately requires CUDA.
+`-DTRELLIS_TENSORRT=OFF` (the default). A CPU build also runs the contract tests.
+See the [Apple silicon build and validation guide](mlx-metal.md) for the
+worker's explicit device selection.
 
 Local verification used the pre-existing `build-baseline` directory for the final
 modified build. The pristine baseline binaries were copied to `out/baseline-bin`

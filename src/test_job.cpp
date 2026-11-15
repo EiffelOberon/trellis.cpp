@@ -57,6 +57,18 @@ int main() {
         require(!trellis::threshold_cutout(input, size).empty() && size > 0, "memory preprocessing failed");
         job.image = png; job.models = "directory-that-does-not-exist";
         require(trellis::run_job(job).status == trellis::JobStatus::Failed, "missing model directory accepted");
+        job.models = ".";
+        job.device = "metal";
+        job.ss_engine = "probe.plan";
+        auto incompatible = trellis::run_job(job);
+        require(incompatible.status == trellis::JobStatus::Failed && incompatible.metrics.stages.empty() &&
+                incompatible.error.find("on CUDA") != std::string::npos,
+                "TensorRT on Metal did not fail before model loading");
+        job.ss_backend = "ggml";
+        auto conflicting = trellis::run_job(job);
+        require(conflicting.status == trellis::JobStatus::Failed && conflicting.metrics.stages.empty() &&
+                conflicting.error.find("GGML SS cannot use an engine") != std::string::npos,
+                "Contradictory SS settings accepted");
         const float verts[] = {0,0,0, 1,0,0, 0,1,0}, uv[] = {0,0,1,0,0,1};
         const int32_t faces[] = {0,1,2};
         std::vector<uint8_t> glb;

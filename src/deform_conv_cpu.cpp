@@ -90,9 +90,8 @@ void deform_conv2d_cpu(const float* x, int Cin, int H, int W,
     }
 }
 
-#ifndef TRELLIS_DEFORM_VULKAN
-// Pure-CPU build: the public entry is the CPU kernel directly. (Vulkan builds
-// define deform_conv2d_run in deform_conv_vk.cpp, which falls back here.)
+#if !defined(TRELLIS_DEFORM_VULKAN) && !defined(TRELLIS_USE_CUDA) && !defined(TRELLIS_USE_HIP)
+// Builds without a custom GPU kernel dispatch directly to the CPU implementation.
 void deform_conv2d_run(const float* x, int Cin, int H, int W,
                        const float* offset, const float* mask,
                        const float* weight, const float* bias, int Cout, int K,

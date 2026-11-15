@@ -68,7 +68,7 @@ void decimate_simplify(const std::vector<float>& verts, int V, const std::vector
 // weighting, driven by the reference threshold ladder. Produces the reference's adaptive,
 // low-sliver triangulation from a dense dual-contour mesh, unlike the meshopt/FQMS path.
 void decimate_qem(const std::vector<float>& verts, int V, const std::vector<int32_t>& faces, int F,
-                  int target_faces, std::vector<float>& ov, std::vector<int32_t>& of);
+                  int target_faces, std::vector<float>& ov, std::vector<int32_t>& of, bool allow_gpu = true);
 
 // Drop connected components (shared-vertex face adjacency) whose face count is below
 // frac*(largest component's). Removes decode floaters + spurious ground fragments (which

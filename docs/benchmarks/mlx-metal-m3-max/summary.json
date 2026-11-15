@@ -1,0 +1,2500 @@
+{
+  "schema_version": 1,
+  "hardware": {
+    "model": "Mac15,8",
+    "chip": "Apple M3 Max",
+    "gpu": "40 cores, Apple GPU family 9",
+    "unified_memory_bytes": 68719476736,
+    "macos": "27.2 (26B123)",
+    "xcode": "27.2 (27B52)",
+    "sdk": "27.2",
+    "cmake": "4.4.5",
+    "compiler": "Apple Clang 21.0.0 (2100.4.1.1)"
+  },
+  "revisions": {
+    "trellis_base": "45edf32c2c5031932b735a9db38accba8e03d704",
+    "ggml": "f8697b33795db2ee6a2569b40853ca6aaa69f9b9",
+    "mlx": "36969c094354086e15d2a327a9c50feb20b9cf11",
+    "glint_base": "3e1c766a4e2bbdd51f2fa6ab33589b7c4dd1e488",
+    "reference_source": "75fbf0183001ed9876c8dbb35de6b68552ee08bd"
+  },
+  "preset": {
+    "resolution": 512,
+    "seed": 42,
+    "steps": 12,
+    "target_faces": 150000,
+    "atlas": 1024,
+    "textures": "PNG",
+    "matte": "automatic"
+  },
+  "measurement": {
+    "physical_footprint_interval_ms": 20,
+    "mode": "development runs with overlapping build, parity, and editor activity"
+  },
+  "checkpoints": [
+    {
+      "repo": "ilintar/trellis2-gguf",
+      "revision": "a57397bd3d351599d9729fc144b3f87c3f87d65b",
+      "file": "birefnet.gguf",
+      "sha256": "10c5dd4dcac904cf81c9a16180eb66f167dd52ab55867f54a44567b0b2babbc1",
+      "bytes": 882749024
+    },
+    {
+      "repo": "ilintar/trellis2-gguf",
+      "revision": "a57397bd3d351599d9729fc144b3f87c3f87d65b",
+      "file": "dinov3.gguf",
+      "sha256": "b2e84087aebeb06440da4f5970413153f7f27f71ede7bab993e82accd839d936",
+      "bytes": 606773440
+    },
+    {
+      "repo": "ilintar/trellis2-gguf",
+      "revision": "a57397bd3d351599d9729fc144b3f87c3f87d65b",
+      "file": "ss_flow.gguf",
+      "sha256": "1dfbef1b80ddea422a6189ff9ac29a244c4482cfbaa01870a0c0ea76d3fb9ae6",
+      "bytes": 2586488480
+    },
+    {
+      "repo": "ilintar/trellis2-gguf",
+      "revision": "a57397bd3d351599d9729fc144b3f87c3f87d65b",
+      "file": "ss_dec.gguf",
+      "sha256": "2790b5eecb261cc877d9bf175ce2bd6dd48cd65be8c042c5f5bc023dfca01cf7",
+      "bytes": 147379392
+    },
+    {
+      "repo": "ilintar/trellis2-gguf",
+      "revision": "a57397bd3d351599d9729fc144b3f87c3f87d65b",
+      "file": "shape_flow_512.gguf",
+      "sha256": "fef397f3600e2fab327a98b3edd3cc8377e9741eef870f3ea3f40235875828fb",
+      "bytes": 2586636032
+    },
+    {
+      "repo": "ilintar/trellis2-gguf",
+      "revision": "a57397bd3d351599d9729fc144b3f87c3f87d65b",
+      "file": "shape_dec.gguf",
+      "sha256": "d3230b649031b55728da2d8818f092eab9ad6f1e72fd01f6cbff6bfada5d7d47",
+      "bytes": 948745344
+    },
+    {
+      "repo": "ilintar/trellis2-gguf",
+      "revision": "a57397bd3d351599d9729fc144b3f87c3f87d65b",
+      "file": "tex_flow_512.gguf",
+      "sha256": "0e81b8213191369dc023eb270650f0ccded29f39bf0bbb7a1fe5d4bcefc15b79",
+      "bytes": 2586734336
+    },
+    {
+      "repo": "ilintar/trellis2-gguf",
+      "revision": "a57397bd3d351599d9729fc144b3f87c3f87d65b",
+      "file": "tex_dec.gguf",
+      "sha256": "858d1e0079254e1d1f0596d7fa3a747d21bfe80f83d810e735a1e0b9db550322",
+      "bytes": 948713888
+    },
+    {
+      "repo": "microsoft/TRELLIS.2-4B",
+      "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+      "file": "pipeline.json",
+      "sha256": "222c359ab1ed9bc6735a640a34f95d47f8681b9bc4aaa101bfb80274676253c6",
+      "bytes": 4186
+    },
+    {
+      "repo": "microsoft/TRELLIS.2-4B",
+      "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+      "file": "ckpts/ss_flow_img_dit_1_3B_64_bf16.json",
+      "sha256": "6cdfb636854f60ffcadd8c49244169cd449f34c5ccdb55b5ff7c04678f9c399e",
+      "bytes": 467
+    },
+    {
+      "repo": "microsoft/TRELLIS.2-4B",
+      "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+      "file": "ckpts/ss_flow_img_dit_1_3B_64_bf16.safetensors",
+      "sha256": "ca01377c485bec418076d38ee80166d32dc776d744f2553b835cba1e97a7abf6",
+      "bytes": 2584426920
+    }
+  ],
+  "block": {
+    "fp32": {
+      "forward_000/self": {
+        "max_abs": 8.392333984375e-05,
+        "rmse": 2.389757153486062e-06,
+        "relative_l2": 2.8143659828330325e-07,
+        "relative_max": 6.290359086864026e-07,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_000/cross": {
+        "max_abs": 3.0517578125e-05,
+        "rmse": 4.249502523163781e-07,
+        "relative_l2": 3.809157269457946e-07,
+        "relative_max": 1.4641376860438579e-06,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_000/ff": {
+        "max_abs": 4.291534423828125e-05,
+        "rmse": 1.2502636838340494e-06,
+        "relative_l2": 8.836895742493585e-07,
+        "relative_max": 1.6138280244607556e-06,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_000/block": {
+        "max_abs": 0.00042724609375,
+        "rmse": 3.930186839337438e-06,
+        "relative_l2": 2.2410866603567578e-07,
+        "relative_max": 7.578861299908967e-07,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      }
+    },
+    "bf16": {
+      "forward_000/self": {
+        "max_abs": 0.5,
+        "rmse": 0.008895643244092729,
+        "relative_l2": 0.0010478111664347556,
+        "relative_max": 0.0037593984962406013,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 249
+      },
+      "forward_000/cross": {
+        "max_abs": 0.125,
+        "rmse": 0.0014832193759041368,
+        "relative_l2": 0.0013322176546573168,
+        "relative_max": 0.005988023952095809,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_000/ff": {
+        "max_abs": 0.125,
+        "rmse": 0.0018294031364513921,
+        "relative_l2": 0.0012930049402614854,
+        "relative_max": 0.004694835680751174,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 3
+      },
+      "forward_000/block": {
+        "max_abs": 4.0,
+        "rmse": 0.015251103935898761,
+        "relative_l2": 0.0008689178742898116,
+        "relative_max": 0.0070921985815602835,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 2676
+      }
+    },
+    "fp16": {
+      "forward_000/self": {
+        "max_abs": 0.125,
+        "rmse": 0.0017771751838741908,
+        "relative_l2": 0.00020929287994511886,
+        "relative_max": 0.0009372071227741331,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_000/cross": {
+        "max_abs": 0.015625,
+        "rmse": 0.0002092389569203417,
+        "relative_l2": 0.00018755405688435344,
+        "relative_max": 0.0007496251874062968,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_000/ff": {
+        "max_abs": 0.015625,
+        "rmse": 0.0003015724589956089,
+        "relative_l2": 0.0002131369663450182,
+        "relative_max": 0.0005875440658049354,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_000/block": {
+        "max_abs": 1.0,
+        "rmse": 0.002729509085158594,
+        "relative_l2": 0.0001556569263789197,
+        "relative_max": 0.001774622892635315,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      }
+    }
+  },
+  "full_forward": {
+    "precision": "bf16",
+    "reference_device": "mps",
+    "torch": "2.15.0",
+    "numpy": "2.5.4",
+    "mlx_enable_tf32": "0",
+    "capture": {
+      "forward_000/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_000/latent.npy": "456ce2c6b07d96b14cdf89b18e4583210ae03f77a5e61e46784ef5fa0de6a6ba",
+      "forward_000/timestep.npy": "8ac82041407bb780fb099ce0c0960ad39a7290af298124f0bde5cf62628565a6",
+      "forward_000/velocity.npy": "1f5540315b5c1a5d0c892428e2f2c9edacc6674a9882a99bfc1d27be59c50ae3",
+      "forward_001/cond.npy": "fcc2a2683f1df67d9b2c15216250cc93d8efe988c760df21419fb90ac08c1211",
+      "forward_001/latent.npy": "456ce2c6b07d96b14cdf89b18e4583210ae03f77a5e61e46784ef5fa0de6a6ba",
+      "forward_001/timestep.npy": "8ac82041407bb780fb099ce0c0960ad39a7290af298124f0bde5cf62628565a6",
+      "forward_001/velocity.npy": "feea96bc48704959da4b60bc351d218ff8c31d83c963e4db4bebb58d5203d627",
+      "forward_002/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_002/latent.npy": "a7dcd0474fab2c3baae2ed99c5a3187d2f8720deb0623633ab80dceacad003fd",
+      "forward_002/timestep.npy": "8d416b153376b9dfff858592891d232de443751e30e8147632ede18668806df4",
+      "forward_002/velocity.npy": "a76aa79e24ebc2aa9362f0bacbfda11128bfbae32164063b6969883507a0b623",
+      "forward_003/cond.npy": "fcc2a2683f1df67d9b2c15216250cc93d8efe988c760df21419fb90ac08c1211",
+      "forward_003/latent.npy": "a7dcd0474fab2c3baae2ed99c5a3187d2f8720deb0623633ab80dceacad003fd",
+      "forward_003/timestep.npy": "8d416b153376b9dfff858592891d232de443751e30e8147632ede18668806df4",
+      "forward_003/velocity.npy": "51d94cb1978f4f586ec8ca76d18bd59b1b937ffe615ba0c257a99eb17d46c5bc",
+      "forward_004/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_004/latent.npy": "9eaebfe24a2bb504126fca3a8ef2b04246f4919b373dc025a763f11749d2ac7c",
+      "forward_004/timestep.npy": "eafa6a479af41357a7bd44e1a6ee2380cd7cefeddd3e8efeaac4f129dcc05b09",
+      "forward_004/velocity.npy": "66442fdae921093a4818e20202bc751d3f7c8f97b9811e73b188275f8475c009",
+      "forward_005/cond.npy": "fcc2a2683f1df67d9b2c15216250cc93d8efe988c760df21419fb90ac08c1211",
+      "forward_005/latent.npy": "9eaebfe24a2bb504126fca3a8ef2b04246f4919b373dc025a763f11749d2ac7c",
+      "forward_005/timestep.npy": "eafa6a479af41357a7bd44e1a6ee2380cd7cefeddd3e8efeaac4f129dcc05b09",
+      "forward_005/velocity.npy": "e8b77900186c2ee28067319ad50bffb58fc152a44b31b5eead6467ce1c387968",
+      "forward_006/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_006/latent.npy": "f65b2d84bc258e3fe12431280d600a8bdc55172ca93ad2cbbf60723f6ef641ac",
+      "forward_006/timestep.npy": "d338c6f6ee1cec05872e8e4eed3f6cc670f4354bea7955a9934387aeeb018707",
+      "forward_006/velocity.npy": "7966f60793433bf5cab4e6d1a859f7590eea389794d84ee2bfbf3a30405a924e",
+      "forward_007/cond.npy": "fcc2a2683f1df67d9b2c15216250cc93d8efe988c760df21419fb90ac08c1211",
+      "forward_007/latent.npy": "f65b2d84bc258e3fe12431280d600a8bdc55172ca93ad2cbbf60723f6ef641ac",
+      "forward_007/timestep.npy": "d338c6f6ee1cec05872e8e4eed3f6cc670f4354bea7955a9934387aeeb018707",
+      "forward_007/velocity.npy": "85031483765d967b8f30dece15706e5c6901cfd7db20b25c0ea4530d9e5c32e2",
+      "forward_008/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_008/latent.npy": "c5ebcee15778a7bc5b9fa9fabffb26c14aadb7a8c8d55f4c9601b021f48dd7b1",
+      "forward_008/timestep.npy": "033618128065daa647621efac43700e8c7f0eafa5ad4d9769ddfb0ed65f7caaa",
+      "forward_008/velocity.npy": "93e52d7cfa4e5f26bc98def8368d7afa0cec859f72e60275853f6d7136c3be25",
+      "forward_009/cond.npy": "fcc2a2683f1df67d9b2c15216250cc93d8efe988c760df21419fb90ac08c1211",
+      "forward_009/latent.npy": "c5ebcee15778a7bc5b9fa9fabffb26c14aadb7a8c8d55f4c9601b021f48dd7b1",
+      "forward_009/timestep.npy": "033618128065daa647621efac43700e8c7f0eafa5ad4d9769ddfb0ed65f7caaa",
+      "forward_009/velocity.npy": "845e6e4ec05772f8906f7b8e695d83e4de38bba1c193c05315e1318d2e1f0d1b",
+      "forward_010/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_010/latent.npy": "6e7d5c865ef11560e2894a1f3ef347f5c10111973af17df790c3d935df93e86b",
+      "forward_010/timestep.npy": "5ec5b52dfb194abc01b0c11a6216d3e6d8d2e02e012708a94a9ff0e012133083",
+      "forward_010/velocity.npy": "d0114d87cc77fdaf1a11586f0fd0df903a919f5cb107b6274be4fcf25531d0ea",
+      "forward_011/cond.npy": "fcc2a2683f1df67d9b2c15216250cc93d8efe988c760df21419fb90ac08c1211",
+      "forward_011/latent.npy": "6e7d5c865ef11560e2894a1f3ef347f5c10111973af17df790c3d935df93e86b",
+      "forward_011/timestep.npy": "5ec5b52dfb194abc01b0c11a6216d3e6d8d2e02e012708a94a9ff0e012133083",
+      "forward_011/velocity.npy": "0f145cab0adb01fab5a41c0822cf79e6851c719acb6bab0fba73de02830ab41f",
+      "forward_012/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_012/latent.npy": "fbacab76242476a6ee7ce3eca77eeea83013028fc0eda28a0fcd112cd03739fe",
+      "forward_012/timestep.npy": "a678ecb58c09c16e20660b38dc5009bd9289d545493aacc03cfa59bc213f0df3",
+      "forward_012/velocity.npy": "156fd94f58531d6494ea8c8a45620129f8fa7905d58c5f316db0e831a744435a",
+      "forward_013/cond.npy": "fcc2a2683f1df67d9b2c15216250cc93d8efe988c760df21419fb90ac08c1211",
+      "forward_013/latent.npy": "fbacab76242476a6ee7ce3eca77eeea83013028fc0eda28a0fcd112cd03739fe",
+      "forward_013/timestep.npy": "a678ecb58c09c16e20660b38dc5009bd9289d545493aacc03cfa59bc213f0df3",
+      "forward_013/velocity.npy": "743c8990e232deea186693d824241b30f061819ceb50f154d41d7b0e595a94f7",
+      "forward_014/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_014/latent.npy": "3803461f65a0348d0a759335ac66ad92692daa58c979b9fde85dafa987f47f1b",
+      "forward_014/timestep.npy": "fe2e2eecb5e478bb0fd6f688b83a123fdc7047ff40e73b6b9274cff114b62058",
+      "forward_014/velocity.npy": "9e535e9ab02d9dcaf4344669fbb0e4f0f153106c573f005b003a8730973bee54",
+      "forward_015/cond.npy": "fcc2a2683f1df67d9b2c15216250cc93d8efe988c760df21419fb90ac08c1211",
+      "forward_015/latent.npy": "3803461f65a0348d0a759335ac66ad92692daa58c979b9fde85dafa987f47f1b",
+      "forward_015/timestep.npy": "fe2e2eecb5e478bb0fd6f688b83a123fdc7047ff40e73b6b9274cff114b62058",
+      "forward_015/velocity.npy": "5d78281c5f8ae3511ec2b139fc0e87a9d5c0f542a1c7b5f09d706c7f2cc539f5",
+      "forward_016/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_016/latent.npy": "d6b8c23ccb21579f0ab85f8cdb03ae7a6264b4bc2a7f7f2b26bb7cd046f45e6e",
+      "forward_016/timestep.npy": "16e38cd7d126e7ec642d108dc5ebc47ca5b922e6e4e59f2ebf65c9e9b3b58068",
+      "forward_016/velocity.npy": "acf2c2e933c2e3b92eb451ff4893e5f40b24502d80a9aede6a3c4e5809e01c5b",
+      "forward_017/cond.npy": "fcc2a2683f1df67d9b2c15216250cc93d8efe988c760df21419fb90ac08c1211",
+      "forward_017/latent.npy": "d6b8c23ccb21579f0ab85f8cdb03ae7a6264b4bc2a7f7f2b26bb7cd046f45e6e",
+      "forward_017/timestep.npy": "16e38cd7d126e7ec642d108dc5ebc47ca5b922e6e4e59f2ebf65c9e9b3b58068",
+      "forward_017/velocity.npy": "d81057fe762aca715078694f6236f90f3acea7ebbc88512951844a262e761dcd",
+      "forward_018/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_018/latent.npy": "2c9535724ac7b250b3aa5b59d9ba23cc1f5ee4c60e1b6e935b77d5195f65c7ba",
+      "forward_018/timestep.npy": "788823ada418d77ed622ce62067ca8e689e0366be2748ae7bfa6e7563436a61d",
+      "forward_018/velocity.npy": "4ab3e6814ffa103f65b00b272756353b82c352f139f69db970c1ad85abffb463",
+      "forward_019/cond.npy": "fcc2a2683f1df67d9b2c15216250cc93d8efe988c760df21419fb90ac08c1211",
+      "forward_019/latent.npy": "2c9535724ac7b250b3aa5b59d9ba23cc1f5ee4c60e1b6e935b77d5195f65c7ba",
+      "forward_019/timestep.npy": "788823ada418d77ed622ce62067ca8e689e0366be2748ae7bfa6e7563436a61d",
+      "forward_019/velocity.npy": "257e652e921e04bc395782a16080f96739c4fa0ec58a20c32b53dbff2f16180f",
+      "forward_020/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_020/latent.npy": "cb5eed9075ddcda9a4529349ef53696336e34dd16429fd940caa41e8969fc2d3",
+      "forward_020/timestep.npy": "8e8dadccd76b68db228d403190fd417e98691814538829d230cf22c018e4c766",
+      "forward_020/velocity.npy": "3fd94b00928c529c1c68ee810ffa1496f508d371aa6bdcf5cccc85076705328f",
+      "forward_021/cond.npy": "e97c6947c458a8c8ef9940570ff02e27fc536d934f6e1dd63249e3ac730edc45",
+      "forward_021/latent.npy": "5557b1b9866b15c07854328e92bc109753619a6bb41c17c8badebb3f9e98b58b",
+      "forward_021/timestep.npy": "ddb7c73a971006732b7a3cd0d50baee28cccc4a73611e677ceffeb0fe266869b",
+      "forward_021/velocity.npy": "f507c934c34b0e21111e99e4dfbeb14bc04645538b052e4e008c24232e9a6879",
+      "noise_0.npy": "053b06f7311fe43dd15fbf4c51f75e5b343d54b5a7a6ad536890a4b453296434",
+      "noise_1.npy": "a17e9e8651af53489eee44dcb70dc840127841ab4ca8c4bd4bf54a0301572909",
+      "noise_2.npy": "f12e8b0cade8a80e58b45c8389d1a956bb7f2ff2386b10964d61de702896749a",
+      "ss_final.npy": "129e070c9ebbb319770f73d9be0ef1b249714f1482fc866366600d8154224be8",
+      "ss_logits.npy": "a8d3afa8a766eeecf1a52c799177860ec8c64cdc74c0678265d7c8384679ed81"
+    },
+    "results": {
+      "forward_000/reference_velocity.npy": "67eb8bb983250b495faaa6d5b84051707f2d626d3909302873c364b18e386c04",
+      "forward_000/velocity.npy": "c6b39cd236fbfd32e960679060f0ef4fc345e385eb535f7ba5fab765725d3d5c",
+      "forward_001/reference_velocity.npy": "063ee15c24013d72ef2feaed4b35c5e569b41d1407c2b7cd5701a1afce757dd0",
+      "forward_001/velocity.npy": "79bc33e20747b57867d25afc7398622a5991ea8a193330fd154eaed27ee4b599",
+      "forward_011/reference_velocity.npy": "68d67c3568a48f8144bb4b087eaeac731ced79d5df2932f1f5e5c0f16bb88a5f",
+      "forward_011/velocity.npy": "1db7f56bf67458ab8200e7df65d10a558a64afd009e76286e13bb589c9ac8938",
+      "forward_021/reference_velocity.npy": "358f7f9cdd0c00780421f8c60c626a48f504d89d85460c72d2fd5d7703930878",
+      "forward_021/velocity.npy": "fe629ce15db1ee26e703c7b2aa24d6d700a1a275f9786ad5a0b6af6dbb48cdfc"
+    },
+    "metrics": {
+      "forward_000/velocity": {
+        "max_abs": 0.019735753536224365,
+        "rmse": 0.0023988747909595896,
+        "relative_l2": 0.002270107704363631,
+        "relative_max": 0.004301896243008968,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_000/ggml": {
+        "max_abs": 0.04084014892578125,
+        "rmse": 0.0071600434936768265,
+        "relative_l2": 0.006775705826677413,
+        "relative_max": 0.008902121872634425,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true
+      },
+      "forward_001/velocity": {
+        "max_abs": 0.01010894775390625,
+        "rmse": 0.001527951973227124,
+        "relative_l2": 0.0014578428942900875,
+        "relative_max": 0.002196045543498483,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_001/ggml": {
+        "max_abs": 0.0489041805267334,
+        "rmse": 0.0082568172122985,
+        "relative_l2": 0.00787795854406229,
+        "relative_max": 0.010623836458416634,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true
+      },
+      "forward_011/velocity": {
+        "max_abs": 0.012060403823852539,
+        "rmse": 0.0019565382678777745,
+        "relative_l2": 0.001959287315895247,
+        "relative_max": 0.0027606854380542245,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_011/ggml": {
+        "max_abs": 0.05293893814086914,
+        "rmse": 0.008060713753513079,
+        "relative_l2": 0.008072039516738525,
+        "relative_max": 0.012117981932122886,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true
+      },
+      "forward_021/velocity": {
+        "max_abs": 0.12500572204589844,
+        "rmse": 0.0060719580484241515,
+        "relative_l2": 0.0059982806167958366,
+        "relative_max": 0.02890001232480423,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 132
+      },
+      "forward_021/ggml": {
+        "max_abs": 0.09115205705165863,
+        "rmse": 0.010558860619274985,
+        "relative_l2": 0.010430738895582999,
+        "relative_max": 0.021073399914101187,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true
+      }
+    }
+  },
+  "attention": [
+    {
+      "keys": 1029,
+      "dtype": "bf16",
+      "baseline": 18907136,
+      "additional_peak": 12582912,
+      "dense_scores": 101154816,
+      "mean": 1.0,
+      "trace_produced": true
+    },
+    {
+      "keys": 4096,
+      "dtype": "bf16",
+      "baseline": 37748736,
+      "additional_peak": 12582912,
+      "dense_scores": 402653184,
+      "mean": 1.0,
+      "trace_produced": true
+    },
+    {
+      "keys": 1029,
+      "dtype": "fp16",
+      "baseline": 18907136,
+      "additional_peak": 12582912,
+      "dense_scores": 101154816,
+      "mean": 1.0,
+      "trace_produced": false
+    },
+    {
+      "keys": 4096,
+      "dtype": "fp16",
+      "baseline": 37748736,
+      "additional_peak": 12582912,
+      "dense_scores": 402653184,
+      "mean": 1.0,
+      "trace_produced": false
+    },
+    {
+      "keys": 1029,
+      "dtype": "fp32",
+      "baseline": 37814272,
+      "additional_peak": 25165824,
+      "dense_scores": 202309632,
+      "mean": 1.0,
+      "trace_produced": false
+    },
+    {
+      "keys": 4096,
+      "dtype": "fp32",
+      "baseline": 75497472,
+      "additional_peak": 25165824,
+      "dense_scores": 805306368,
+      "mean": 1.0,
+      "trace_produced": false
+    }
+  ],
+  "fixtures": {
+    "axe": {
+      "input_sha256": "f7f21b63607c5ba9a0fce954273351b2ddbde26aa62bb5d565d69a4a2ebc88a2",
+      "ggml": {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 274.471,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 5308920,
+        "sampled_peak_footprint_bytes": 6992729704,
+        "idle_after_footprint_bytes": 327091424,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6,
+        "stages": [
+          {
+            "stage": "preprocess",
+            "backend": "MTL0/native-cpu",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 108.123,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 5747086016
+          },
+          {
+            "stage": "conditioning",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 0.292319,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 4994306248
+          },
+          {
+            "stage": "ss_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 116.742,
+            "setup_seconds": 0.623912,
+            "first_forward_seconds": 5.14365,
+            "later_forwards_seconds": 110.884,
+            "forwards": 22,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 6992729704
+          },
+          {
+            "stage": "ss_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 5.59875,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1041253912
+          },
+          {
+            "stage": "shape_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 12.9582,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3462024432
+          },
+          {
+            "stage": "shape_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 1.1561,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 2100578560
+          },
+          {
+            "stage": "texture_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 7.98338,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 2927774600
+          },
+          {
+            "stage": "texture_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 0.980476,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1817364616
+          },
+          {
+            "stage": "mesh_processing",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 4.7837,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 861013432
+          },
+          {
+            "stage": "bake",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 15.2341,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 321455352
+          },
+          {
+            "stage": "serialize",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 0.560279,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 327058656
+          }
+        ]
+      },
+      "ggml_glb_sha256": "af8f0557ba35cd77a861b2b8f23e9cc1d593b7b0b40a389f155e327ba36e5edd",
+      "system_memory_before": [
+        "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+        "Swapouts:                                          0.",
+        "System-wide memory free percentage: 71%"
+      ],
+      "system_memory_after": [
+        "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+        "Swapouts:                                          0.",
+        "System-wide memory free percentage: 69%"
+      ],
+      "mlx": {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 331.66,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 5439992,
+        "sampled_peak_footprint_bytes": 8586729016,
+        "idle_after_footprint_bytes": 330253728,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6,
+        "stages": [
+          {
+            "stage": "preprocess",
+            "backend": "MTL0/native-cpu",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 172.61,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 5746021032
+          },
+          {
+            "stage": "conditioning",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 0.602428,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 4994601064
+          },
+          {
+            "stage": "ss_flow",
+            "backend": "mlx/Metal",
+            "precision": "bf16 torso, fp32 IO/norm/RoPE",
+            "seconds": 71.8161,
+            "setup_seconds": 1.21373,
+            "first_forward_seconds": 2.49075,
+            "later_forwards_seconds": 67.9753,
+            "forwards": 22,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 8586729016
+          },
+          {
+            "stage": "ss_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 7.66002,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1044285048
+          },
+          {
+            "stage": "shape_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 22.7567,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3477065064
+          },
+          {
+            "stage": "shape_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 1.12552,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 2118027688
+          },
+          {
+            "stage": "texture_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 12.402,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 2939227136
+          },
+          {
+            "stage": "texture_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 1.01066,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1819478248
+          },
+          {
+            "stage": "mesh_processing",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 3.01477,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 870352456
+          },
+          {
+            "stage": "bake",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 10.8004,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 325944736
+          },
+          {
+            "stage": "serialize",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 0.197528,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 330171808
+          }
+        ]
+      },
+      "quality": {
+        "structures": [
+          {
+            "path": "out/metal-baseline/axe-final/axe.glb",
+            "vertices": 95681,
+            "triangles": 142372,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 7516040,
+            "valid": true
+          },
+          {
+            "path": "out/mlx-worker/axe/axe.glb",
+            "vertices": 95681,
+            "triangles": 142372,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 7516040,
+            "valid": true
+          }
+        ],
+        "silhouette_iou": {
+          "0": 1.0,
+          "90": 1.0,
+          "180": 1.0,
+          "300": 1.0
+        },
+        "final_latent_relative_l2": 0.09997031001599042,
+        "decoded_occupancy_iou": 0.9950024987506247
+      },
+      "fixed_lighting": {
+        "review": "Matched fixed-light renders were byte-identical.",
+        "images": {
+          "out/glint-qa/axe-ggml-fixed.png": "31311f3dcba47122ff2d3d0bbaedc19fc85aec8f1576691bfd9980a2df54ff24",
+          "out/glint-qa/axe-mlx-fixed.png": "31311f3dcba47122ff2d3d0bbaedc19fc85aec8f1576691bfd9980a2df54ff24"
+        }
+      }
+    },
+    "chest": {
+      "input_sha256": "a33fe731d46bc34d8ade14fded885a1bf0c152e2792fbe8c10bf561c938420e7",
+      "ggml": {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 787.788,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 7455248,
+        "sampled_peak_footprint_bytes": 6990763624,
+        "idle_after_footprint_bytes": 1328401288,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 4,
+        "stages": [
+          {
+            "stage": "preprocess",
+            "backend": "MTL0/native-cpu",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 176.641,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 5743629016
+          },
+          {
+            "stage": "conditioning",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 1.08566,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 4991307976
+          },
+          {
+            "stage": "ss_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 193.022,
+            "setup_seconds": 3.25648,
+            "first_forward_seconds": 38.1646,
+            "later_forwards_seconds": 151.533,
+            "forwards": 22,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 6990763624
+          },
+          {
+            "stage": "ss_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 8.49439,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1021625856
+          },
+          {
+            "stage": "shape_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 176.89,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3462761712
+          },
+          {
+            "stage": "shape_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 10.0794,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3696430560
+          },
+          {
+            "stage": "texture_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 100.127,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3251932424
+          },
+          {
+            "stage": "texture_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 9.82887,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 4438757432
+          },
+          {
+            "stage": "mesh_processing",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 108.99,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3329330584
+          },
+          {
+            "stage": "bake",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 2.18704,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1321225096
+          },
+          {
+            "stage": "serialize",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 0.344984,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1326386056
+          }
+        ]
+      },
+      "ggml_glb_sha256": "dd05d79e00d83d12af0f79f0e6398dcf6cb344f27c317455481e6640b5a0ac32",
+      "system_memory_before": [
+        "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+        "Swapouts:                                          0.",
+        "System-wide memory free percentage: 69%"
+      ],
+      "system_memory_after": [
+        "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+        "Swapouts:                                          0.",
+        "System-wide memory free percentage: 66%"
+      ],
+      "mlx": {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 700.952,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 5915128,
+        "sampled_peak_footprint_bytes": 8482657824,
+        "idle_after_footprint_bytes": 1704316168,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 4,
+        "stages": [
+          {
+            "stage": "preprocess",
+            "backend": "MTL0/native-cpu",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 177.923,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 5738435312
+          },
+          {
+            "stage": "conditioning",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 0.301868,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 4987719856
+          },
+          {
+            "stage": "ss_flow",
+            "backend": "mlx/Metal",
+            "precision": "bf16 torso, fp32 IO/norm/RoPE",
+            "seconds": 47.2451,
+            "setup_seconds": 0.131615,
+            "first_forward_seconds": 2.18241,
+            "later_forwards_seconds": 44.8778,
+            "forwards": 22,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 8482657824
+          },
+          {
+            "stage": "ss_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 6.79264,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1142687328
+          },
+          {
+            "stage": "shape_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 316.781,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3504672200
+          },
+          {
+            "stage": "shape_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 7.94034,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3689795280
+          },
+          {
+            "stage": "texture_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 90.6518,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3309948336
+          },
+          {
+            "stage": "texture_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 6.33079,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 4468560120
+          },
+          {
+            "stage": "mesh_processing",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 44.7745,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3373878776
+          },
+          {
+            "stage": "bake",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 1.85706,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1702153456
+          },
+          {
+            "stage": "serialize",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 0.256175,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1704234224
+          }
+        ]
+      },
+      "quality": {
+        "structures": [
+          {
+            "path": "out/metal-baseline/chest-final/chest.glb",
+            "vertices": 103794,
+            "triangles": 145736,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9431384,
+            "valid": true
+          },
+          {
+            "path": "out/mlx-worker/chest/chest.glb",
+            "vertices": 105928,
+            "triangles": 146916,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9760920,
+            "valid": true
+          }
+        ],
+        "decoded_occupancy_iou": 0.9896211290186482,
+        "final_latent_relative_l2": 0.12250696199897804,
+        "silhouette_iou": {
+          "0": 0.9778610738507441,
+          "90": 0.9908943837568274,
+          "180": 0.9778922757730182,
+          "300": 0.9947329352560393
+        }
+      },
+      "fixed_lighting": {
+        "review": "The GGML render shows a clearer right-side ring and brighter metal band details.",
+        "images": {
+          "out/glint-qa/chest-ggml-fixed.png": "e2292ecdc558cbae700340fa282ad7c3efecd8e2227f50c3e725d2b6dffa8f59",
+          "out/glint-qa/chest-mlx-fixed.png": "f8f93b4d44b71e6894038415e843edb10e9cc2e9358cc14b98257096ada24ad5"
+        }
+      }
+    },
+    "drone": {
+      "input_sha256": "b09f3797ec8a61dff00d9b4d4026474727940a826172571784869e732b0c65bd",
+      "ggml": {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 491.675,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 6603256,
+        "sampled_peak_footprint_bytes": 6989813352,
+        "idle_after_footprint_bytes": 1599392360,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 5,
+        "stages": [
+          {
+            "stage": "preprocess",
+            "backend": "MTL0/native-cpu",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 98.3994,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 5744055000
+          },
+          {
+            "stage": "conditioning",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 0.218493,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 4991258824
+          },
+          {
+            "stage": "ss_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 136.495,
+            "setup_seconds": 0.399242,
+            "first_forward_seconds": 5.10916,
+            "later_forwards_seconds": 130.9,
+            "forwards": 22,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 6989813352
+          },
+          {
+            "stage": "ss_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 7.1193,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1036322328
+          },
+          {
+            "stage": "shape_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 87.0555,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3453504728
+          },
+          {
+            "stage": "shape_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 7.12502,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3170438192
+          },
+          {
+            "stage": "texture_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 111.418,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3154381920
+          },
+          {
+            "stage": "texture_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 4.24527,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3160968408
+          },
+          {
+            "stage": "mesh_processing",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 37.5555,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 2597489568
+          },
+          {
+            "stage": "bake",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 1.73793,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1598278248
+          },
+          {
+            "stage": "serialize",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 0.183473,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1599359592
+          }
+        ]
+      },
+      "ggml_glb_sha256": "12d64e86fd511dbe6b1f7b1bb2a4f0d1777c9451b39b5a1d8c7f9238a22a77ea",
+      "system_memory_before": [
+        "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+        "Swapouts:                                          0.",
+        "System-wide memory free percentage: 66%"
+      ],
+      "system_memory_after": [
+        "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+        "Swapouts:                                          0.",
+        "System-wide memory free percentage: 67%"
+      ],
+      "mlx": {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 324.317,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 5489144,
+        "sampled_peak_footprint_bytes": 8490735232,
+        "idle_after_footprint_bytes": 1548356272,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 5,
+        "stages": [
+          {
+            "stage": "preprocess",
+            "backend": "MTL0/native-cpu",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 80.7908,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 5748003592
+          },
+          {
+            "stage": "conditioning",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 0.22997,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 4995256568
+          },
+          {
+            "stage": "ss_flow",
+            "backend": "mlx/Metal",
+            "precision": "bf16 torso, fp32 IO/norm/RoPE",
+            "seconds": 36.5448,
+            "setup_seconds": 0.110911,
+            "first_forward_seconds": 1.68196,
+            "later_forwards_seconds": 34.7135,
+            "forwards": 22,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 8490735232
+          },
+          {
+            "stage": "ss_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 5.22327,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3252767408
+          },
+          {
+            "stage": "shape_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 71.7573,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3484487088
+          },
+          {
+            "stage": "shape_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 6.1057,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3152448656
+          },
+          {
+            "stage": "texture_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 44.3137,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3131608256
+          },
+          {
+            "stage": "texture_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 5.89502,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3296824752
+          },
+          {
+            "stage": "mesh_processing",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 55.2026,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 2557971432
+          },
+          {
+            "stage": "bake",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 2.43017,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1546209968
+          },
+          {
+            "stage": "serialize",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 0.200358,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1548339888
+          }
+        ]
+      },
+      "quality": {
+        "structures": [
+          {
+            "path": "out/metal-baseline/drone-final/drone.glb",
+            "vertices": 102187,
+            "triangles": 140210,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 7486740,
+            "valid": true
+          },
+          {
+            "path": "out/mlx-worker/drone/drone.glb",
+            "vertices": 118630,
+            "triangles": 148938,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 8178084,
+            "valid": true
+          }
+        ],
+        "decoded_occupancy_iou": 0.96065551099433,
+        "final_latent_relative_l2": 0.1953570245876215,
+        "silhouette_iou": {
+          "0": 0.9760397364628371,
+          "90": 0.9636200079496244,
+          "180": 0.9761910890324573,
+          "300": 0.9708032177712442
+        }
+      },
+      "fixed_lighting": {
+        "review": "The matched renders preserve the main shell, lens and separated detail. The lens and some underside geometry vary.",
+        "images": {
+          "out/glint-qa/drone-ggml-fixed.png": "5703e4eefc174bece074c38e7f0cffc56c923a6b0a4f4e8df7f00bf1480967fc",
+          "out/glint-qa/drone-mlx-fixed.png": "276b78de2b9a8a09d9520722c81898e790496301f103204c14109b4c27631f09"
+        }
+      }
+    },
+    "knight": {
+      "input_sha256": "05315f8c5f8dc1d14e702ffa59846531b5b8d6e1b12709fd945cc14ff1d28192",
+      "ggml": {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 566.209,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 5472760,
+        "sampled_peak_footprint_bytes": 6988469816,
+        "idle_after_footprint_bytes": 646874792,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6,
+        "stages": [
+          {
+            "stage": "preprocess",
+            "backend": "MTL0/native-cpu",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 128.847,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 5738828456
+          },
+          {
+            "stage": "conditioning",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 0.375492,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 4985999488
+          },
+          {
+            "stage": "ss_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 289.635,
+            "setup_seconds": 1.04915,
+            "first_forward_seconds": 5.85491,
+            "later_forwards_seconds": 282.674,
+            "forwards": 22,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 6988469816
+          },
+          {
+            "stage": "ss_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 13.5488,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1030751744
+          },
+          {
+            "stage": "shape_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 73.1709,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3463580888
+          },
+          {
+            "stage": "shape_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 3.23462,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 2284882368
+          },
+          {
+            "stage": "texture_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 36.234,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3026865080
+          },
+          {
+            "stage": "texture_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 2.93462,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 2337245776
+          },
+          {
+            "stage": "mesh_processing",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 14.9272,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1602471904
+          },
+          {
+            "stage": "bake",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 2.93632,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 641549992
+          },
+          {
+            "stage": "serialize",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 0.288559,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 646809256
+          }
+        ]
+      },
+      "ggml_glb_sha256": "4286ec91f3e202e391f6e77847461343c1ab7b63862b2c48f422c31303cbd81f",
+      "system_memory_before": [
+        "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+        "Swapouts:                                          0.",
+        "System-wide memory free percentage: 67%"
+      ],
+      "system_memory_after": [
+        "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+        "Swapouts:                                          0.",
+        "System-wide memory free percentage: 62%"
+      ],
+      "mlx": {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 355.689,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 5620216,
+        "sampled_peak_footprint_bytes": 8484034176,
+        "idle_after_footprint_bytes": 619628488,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6,
+        "stages": [
+          {
+            "stage": "preprocess",
+            "backend": "MTL0/native-cpu",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 152.734,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 5741171368
+          },
+          {
+            "stage": "conditioning",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 0.684229,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 4988440752
+          },
+          {
+            "stage": "ss_flow",
+            "backend": "mlx/Metal",
+            "precision": "bf16 torso, fp32 IO/norm/RoPE",
+            "seconds": 56.4391,
+            "setup_seconds": 0.133806,
+            "first_forward_seconds": 3.70719,
+            "later_forwards_seconds": 52.5534,
+            "forwards": 22,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 8484034176
+          },
+          {
+            "stage": "ss_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 5.8238,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1401325248
+          },
+          {
+            "stage": "shape_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 73.5788,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3477474808
+          },
+          {
+            "stage": "shape_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 7.31084,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 2246724320
+          },
+          {
+            "stage": "texture_flow",
+            "backend": "MTL0",
+            "precision": "fp16 weights, bf16 KV, fp32 accumulation",
+            "seconds": 41.4275,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 3044003008
+          },
+          {
+            "stage": "texture_decode",
+            "backend": "MTL0",
+            "precision": "fp16 weights, fp32 activations",
+            "seconds": 2.45522,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 2287258336
+          },
+          {
+            "stage": "mesh_processing",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 12.44,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 1691502896
+          },
+          {
+            "stage": "bake",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 2.46632,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 614860768
+          },
+          {
+            "stage": "serialize",
+            "backend": "native-cpu",
+            "precision": "fp32",
+            "seconds": 0.25937,
+            "setup_seconds": 0,
+            "first_forward_seconds": 0,
+            "later_forwards_seconds": 0,
+            "forwards": 0,
+            "sampled_peak_device_bytes": null,
+            "sampled_peak_footprint_bytes": 617793480
+          }
+        ]
+      },
+      "quality": {
+        "structures": [
+          {
+            "path": "out/metal-baseline/knight-final/knight.glb",
+            "vertices": 112660,
+            "triangles": 146616,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 9087232,
+            "valid": true
+          },
+          {
+            "path": "out/mlx-worker/knight/knight.glb",
+            "vertices": 99560,
+            "triangles": 137660,
+            "textures": [
+              [
+                1024,
+                1024
+              ],
+              [
+                1024,
+                1024
+              ]
+            ],
+            "bytes": 8741972,
+            "valid": true
+          }
+        ],
+        "decoded_occupancy_iou": 0.982990906028966,
+        "final_latent_relative_l2": 0.0629203157835802,
+        "silhouette_iou": {
+          "0": 0.9652397225648596,
+          "90": 0.9406233900051519,
+          "180": 0.9652585387555358,
+          "300": 0.9461788696834337
+        }
+      },
+      "fixed_lighting": {
+        "review": "Armor and cape are visible in both renders. Shape and highlights around the armor and cloth vary. Two silhouette angles missed 95%.",
+        "images": {
+          "out/glint-qa/knight-ggml-fixed.png": "767edf368eb2cbc5527ad52c6fcd28e27dea6530fdf8ba0f9c0cd072e61ac9af",
+          "out/glint-qa/knight-mlx-fixed.png": "d5c44a8c1eb242a2d316ffcd8f038a2f66ab1303c0ac8274bc7b6810e22b567f"
+        }
+      }
+    }
+  },
+  "lifecycle": [
+    {
+      "status": "success",
+      "error": "",
+      "seed": 42,
+      "seconds": 331.66,
+      "idle_device_bytes": null,
+      "sampled_peak_device_bytes": null,
+      "idle_after_device_bytes": null,
+      "device": "MTL0 (Apple M3 Max)",
+      "idle_footprint_bytes": 5439992,
+      "sampled_peak_footprint_bytes": 8586729016,
+      "idle_after_footprint_bytes": 330253728,
+      "repaired_nonfinite": 0,
+      "clamped_guidance": 6
+    },
+    {
+      "status": "cancelled",
+      "error": "Generation cancelled",
+      "seed": 42,
+      "seconds": 219.392,
+      "idle_device_bytes": null,
+      "sampled_peak_device_bytes": null,
+      "idle_after_device_bytes": null,
+      "device": "MTL0 (Apple M3 Max)",
+      "idle_footprint_bytes": 330253728,
+      "sampled_peak_footprint_bytes": 8642828048,
+      "idle_after_footprint_bytes": 6409720896,
+      "repaired_nonfinite": 0,
+      "clamped_guidance": 1
+    },
+    {
+      "status": "failed",
+      "error": "Cannot open SS weights: models/reference/ckpts/ss_flow_img_dit_1_3B_64_bf16.safetensors.missing",
+      "seed": 42,
+      "seconds": 4.15e-05,
+      "idle_device_bytes": null,
+      "sampled_peak_device_bytes": null,
+      "idle_after_device_bytes": null,
+      "device": "",
+      "idle_footprint_bytes": null,
+      "sampled_peak_footprint_bytes": null,
+      "idle_after_footprint_bytes": null,
+      "repaired_nonfinite": 0,
+      "clamped_guidance": 0
+    },
+    {
+      "status": "success",
+      "error": "",
+      "seed": 42,
+      "seconds": 290.062,
+      "idle_device_bytes": null,
+      "sampled_peak_device_bytes": null,
+      "idle_after_device_bytes": null,
+      "device": "MTL0 (Apple M3 Max)",
+      "idle_footprint_bytes": 6384555072,
+      "sampled_peak_footprint_bytes": 8709724064,
+      "idle_after_footprint_bytes": 179930528,
+      "repaired_nonfinite": 0,
+      "clamped_guidance": 6
+    }
+  ],
+  "submission_probe": {
+    "output_sha256": "fe629ce15db1ee26e703c7b2aa24d6d700a1a275f9786ad5a0b6af6dbb48cdfc",
+    "one_block_peak_active_bytes": 3852757092,
+    "five_block_peak_active_bytes": 4054116676,
+    "mode": "diagnostic late forward, both groups match the ungrouped output"
+  },
+  "original_sampler": {
+    "fixture": "axe",
+    "native_final_latent_relative_l2": 0.11265770714814154,
+    "occupancy_iou": 0.991516966,
+    "agreement": 0.99993515,
+    "logits_rmse": 1.18274982,
+    "policy": "Microsoft original sampler, with native initial noise and conditioning"
+  },
+  "extended_lifetime": {
+    "input": "Axe cutout generated once with the native automatic matte",
+    "input_sha256": "1aff6092896f606229ec9d02a36f007dc554df5fb26c475ddb951bea480264ed",
+    "jobs": [
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 101.185,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 3588600,
+        "sampled_peak_footprint_bytes": 4494887600,
+        "idle_after_footprint_bytes": 305251720,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "cancelled",
+        "error": "Generation cancelled",
+        "seed": 42,
+        "seconds": 4.9631,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 305251720,
+        "sampled_peak_footprint_bytes": 4589784088,
+        "idle_after_footprint_bytes": 493077896,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 1
+      },
+      {
+        "status": "failed",
+        "error": "Cannot open SS weights: models/reference/ckpts/ss_flow_img_dit_1_3B_64_bf16.safetensors.missing",
+        "seed": 42,
+        "seconds": 0.000102083,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "",
+        "idle_footprint_bytes": null,
+        "sampled_peak_footprint_bytes": null,
+        "idle_after_footprint_bytes": null,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 0
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 136.724,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 493077896,
+        "sampled_peak_footprint_bytes": 4682796056,
+        "idle_after_footprint_bytes": 248644976,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 99.9941,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 248644976,
+        "sampled_peak_footprint_bytes": 4533521408,
+        "idle_after_footprint_bytes": 1004144512,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 78.4968,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 1004144512,
+        "sampled_peak_footprint_bytes": 5280517648,
+        "idle_after_footprint_bytes": 914769792,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 114.307,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 914769792,
+        "sampled_peak_footprint_bytes": 5191142928,
+        "idle_after_footprint_bytes": 854034232,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 111.444,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 854034232,
+        "sampled_peak_footprint_bytes": 5238263240,
+        "idle_after_footprint_bytes": 421496440,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 112.544,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 421496440,
+        "sampled_peak_footprint_bytes": 4798844168,
+        "idle_after_footprint_bytes": 852608848,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 157.45,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 852608848,
+        "sampled_peak_footprint_bytes": 5230120416,
+        "idle_after_footprint_bytes": 424822392,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 195.555,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 424822392,
+        "sampled_peak_footprint_bytes": 4709911816,
+        "idle_after_footprint_bytes": 895338344,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 95.7577,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 895338344,
+        "sampled_peak_footprint_bytes": 5180182008,
+        "idle_after_footprint_bytes": 886392680,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 76.3834,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 886392680,
+        "sampled_peak_footprint_bytes": 5168778744,
+        "idle_after_footprint_bytes": 879314792,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      },
+      {
+        "status": "success",
+        "error": "",
+        "seed": 42,
+        "seconds": 75.7261,
+        "idle_device_bytes": null,
+        "sampled_peak_device_bytes": null,
+        "idle_after_device_bytes": null,
+        "device": "MTL0 (Apple M3 Max)",
+        "idle_footprint_bytes": 879314792,
+        "sampled_peak_footprint_bytes": 5164011000,
+        "idle_after_footprint_bytes": 895436648,
+        "repaired_nonfinite": 0,
+        "clamped_guidance": 6
+      }
+    ]
+  },
+  "glint": {
+    "mlx": {
+      "result": "Dedicated test scene ready\nGeneration, concurrent edit, and one-step undo/redo passed\nCancelled generation without an edit",
+      "publication": "[trellis-editor] generation=313.360s publish=43.133ms idle=1523500376 peak=9977403704 worker_after=1999571032",
+      "acceleration_builds": [
+        "[scene] acceleration build: BLAS 0.000 ms, TLAS 0.000 ms",
+        "[scene] acceleration build: BLAS 3.238 ms, TLAS 0.893 ms",
+        "[scene] acceleration build: BLAS 0.310 ms, TLAS 0.534 ms",
+        "[scene] acceleration build: BLAS 11.739 ms, TLAS 0.462 ms",
+        "[scene] acceleration build: BLAS 0.337 ms, TLAS 0.428 ms",
+        "[scene] acceleration build: BLAS 29.020 ms, TLAS 0.469 ms"
+      ],
+      "windowed_baseline": {
+        "frames": 600,
+        "cpu_wall_ms": {
+          "p50": 8.774,
+          "p95": 25.552,
+          "p99": 35.271,
+          "max": 44.067
+        },
+        "gpu_ms": {
+          "p50": 9.066,
+          "p95": 11.964,
+          "p99": 12.647,
+          "max": 13.434
+        }
+      },
+      "windowed_during_worker": {
+        "frames": 19019,
+        "cpu_wall_ms": {
+          "p50": 8.955,
+          "p95": 37.889,
+          "p99": 87.046,
+          "max": 5006.33
+        },
+        "gpu_ms": {
+          "p50": 9.793,
+          "p95": 46.22,
+          "p99": 84.462,
+          "max": 596.047
+        }
+      },
+      "measurement": "exploratory, other standalone validation was simultaneously running"
+    },
+    "ggml": {
+      "result": "Dedicated test scene ready\nGeneration, concurrent edit, and one-step undo/redo passed\nCancelled generation without an edit",
+      "publication": "[trellis-editor] generation=634.180s publish=40.198ms idle=1520485696 peak=8458246384 worker_after=1088145616",
+      "acceleration_builds": [
+        "[scene] acceleration build: BLAS 0.000 ms, TLAS 0.000 ms",
+        "[scene] acceleration build: BLAS 8.035 ms, TLAS 4.162 ms",
+        "[scene] acceleration build: BLAS 4.082 ms, TLAS 6.992 ms",
+        "[scene] acceleration build: BLAS 9.064 ms, TLAS 0.073 ms",
+        "[scene] acceleration build: BLAS 0.098 ms, TLAS 0.059 ms",
+        "[scene] acceleration build: BLAS 8.263 ms, TLAS 0.073 ms"
+      ],
+      "windowed_baseline": {
+        "frames": 3,
+        "cpu_wall_ms": {
+          "p50": 25.0,
+          "p95": 31.857,
+          "p99": 31.857,
+          "max": 31.857
+        },
+        "gpu_ms": {
+          "p50": 28.825,
+          "p95": 29.005,
+          "p99": 29.005,
+          "max": 29.005
+        }
+      },
+      "windowed_during_worker": {
+        "frames": 55896,
+        "cpu_wall_ms": {
+          "p50": 8.557,
+          "p95": 26.214,
+          "p99": 37.54,
+          "max": 11947.956
+        },
+        "gpu_ms": {
+          "p50": 11141.489,
+          "p95": 11724.44,
+          "p99": 11724.44,
+          "max": 11724.44
+        }
+      },
+      "measurement": "exploratory, other standalone validation was simultaneously running",
+      "baseline_note": "Only three qualifying frames before generation.",
+      "gpu_timing_note": "Raw GPU readings repeatedly held multi-second values across subsequent frames. GPU timing qualification remains open."
+    },
+    "shutdown_during_job": "Dedicated test scene ready\nEditor shut down with an active worker before publication"
+  },
+  "knight_same_input_precision": {
+    "bf16": {
+      "000": {
+        "relative_l2_to_ggml": 0.006941827301708188,
+        "max_abs": 0.046204328536987305
+      },
+      "001": {
+        "relative_l2_to_ggml": 0.007886609688783094,
+        "max_abs": 0.04819953441619873
+      },
+      "011": {
+        "relative_l2_to_ggml": 0.008460914424045335,
+        "max_abs": 0.04801666736602783
+      },
+      "021": {
+        "relative_l2_to_ggml": 0.013257842686544764,
+        "max_abs": 0.1777375191450119
+      }
+    },
+    "fp16": {
+      "000": {
+        "relative_l2_to_ggml": 0.0015958898147015402,
+        "max_abs": 0.016010284423828125
+      },
+      "001": {
+        "relative_l2_to_ggml": 0.000988935005836949,
+        "max_abs": 0.007760047912597656
+      },
+      "011": {
+        "relative_l2_to_ggml": 0.0019420268019574678,
+        "max_abs": 0.016357898712158203
+      },
+      "021": {
+        "relative_l2_to_ggml": 0.004274770564842664,
+        "max_abs": 0.05412173271179199
+      }
+    },
+    "fp32": {
+      "000": {
+        "relative_l2_to_ggml": 0.0013112278660688621,
+        "max_abs": 0.014949798583984375
+      },
+      "001": {
+        "relative_l2_to_ggml": 0.00045102878556278834,
+        "max_abs": 0.003409147262573242
+      },
+      "011": {
+        "relative_l2_to_ggml": 0.0017188330245969208,
+        "max_abs": 0.016523241996765137
+      },
+      "021": {
+        "relative_l2_to_ggml": 0.0039652118147884595,
+        "max_abs": 0.0500103235244751
+      }
+    }
+  },
+  "knight_fp16_experiment": {
+    "structures": [
+      {
+        "path": "out/metal-baseline/knight-final/knight.glb",
+        "vertices": 112660,
+        "triangles": 146616,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "bytes": 9087232,
+        "valid": true
+      },
+      {
+        "path": "out/mlx-worker/knight-fp16/knight.glb",
+        "vertices": 107128,
+        "triangles": 144190,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "bytes": 9004064,
+        "valid": true
+      }
+    ],
+    "decoded_occupancy_iou": 0.9915469146238377,
+    "final_latent_relative_l2": 0.029659907138238635,
+    "silhouette_iou": {
+      "0": 0.982431582577648,
+      "90": 0.9588390363584162,
+      "180": 0.9823910088653561,
+      "300": 0.9633011842265902
+    }
+  },
+  "sequential_ss_stage": {
+    "fixture": "axe/forward_000",
+    "timings": {
+      "ggml": {
+        "setup_seconds": 15.79506,
+        "first_forward_seconds": 5.105139,
+        "warm_forward_seconds": [
+          5.093121,
+          5.093822,
+          5.094055
+        ],
+        "warm_median_seconds": 5.093822
+      },
+      "mlx": {
+        "setup_seconds": 0.10995,
+        "first_forward_seconds": 1.550172,
+        "warm_forward_seconds": [
+          1.548028,
+          1.549462,
+          1.549062
+        ],
+        "warm_median_seconds": 1.549062
+      }
+    },
+    "method": "GGML then BF16 MLX, one process, three warm forwards each, no other validation runs"
+  }
+}

@@ -1,0 +1,296 @@
+{
+  "preset": {
+    "resolution": 512,
+    "seed": 42,
+    "steps": 12,
+    "target_faces": 150000,
+    "atlas": 1024
+  },
+  "thresholds": {
+    "decoded_occupancy_iou": 0.95,
+    "per_view_silhouette_iou": 0.95
+  },
+  "ss_timing": {
+    "fixture": "knight",
+    "capture": "forward_000",
+    "mode": "sequential, same input",
+    "backends": {
+      "ggml": {
+        "setup_seconds": [
+          0.493246
+        ],
+        "forward_seconds": [
+          5.09518,
+          5.098722,
+          5.0974,
+          5.098552
+        ],
+        "warm_forward_median_seconds": 5.098552
+      },
+      "mlx": {
+        "setup_seconds": [
+          0.162522
+        ],
+        "forward_seconds": [
+          1.650313,
+          1.648696,
+          1.65371,
+          1.642445
+        ],
+        "warm_forward_median_seconds": 1.648696
+      }
+    },
+    "warm_speedup": 3.0924755079165593
+  },
+  "knight_fp16_reference": {
+    "reference_commit": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+    "source_weights_sha256": "ca01377c485bec418076d38ee80166d32dc776d744f2553b835cba1e97a7abf6",
+    "torch": "2.15.0",
+    "reference_device": "mps",
+    "precision": "fp16",
+    "metrics": {
+      "forward_000/velocity": {
+        "max_abs": 0.0018301010131835938,
+        "rmse": 0.0003205045636904956,
+        "relative_l2": 0.0003043673037402733,
+        "relative_max": 0.00039977105347172205,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_000/ggml": {
+        "max_abs": 0.015524864196777344,
+        "rmse": 0.001678927269432931,
+        "relative_l2": 0.001594394040101072,
+        "relative_max": 0.003391283470279397,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true
+      },
+      "forward_001/velocity": {
+        "max_abs": 0.0013642311096191406,
+        "rmse": 0.00021100051248176577,
+        "relative_l2": 0.00020161991568714104,
+        "relative_max": 0.00029745173998871116,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_001/ggml": {
+        "max_abs": 0.008048921823501587,
+        "rmse": 0.001035388303251459,
+        "relative_l2": 0.000989357324063615,
+        "relative_max": 0.0017549561687550497,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true
+      },
+      "forward_011/velocity": {
+        "max_abs": 0.002576589584350586,
+        "rmse": 0.0002879950809818418,
+        "relative_l2": 0.00029034411765954904,
+        "relative_max": 0.000591891821431928,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_011/ggml": {
+        "max_abs": 0.016957402229309082,
+        "rmse": 0.0019147933734463283,
+        "relative_l2": 0.001930411417508476,
+        "relative_max": 0.003895439053709185,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true
+      },
+      "forward_021/velocity": {
+        "max_abs": 0.014971494674682617,
+        "rmse": 0.0010959862599139386,
+        "relative_l2": 0.0010834082482369225,
+        "relative_max": 0.003405647273106716,
+        "pointwise_allclose": true,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true,
+        "pointwise_outliers": 0
+      },
+      "forward_021/ggml": {
+        "max_abs": 0.05469167232513428,
+        "rmse": 0.0043608247985605884,
+        "relative_l2": 0.0043107780897249995,
+        "relative_max": 0.012441011987314364,
+        "pointwise_allclose": false,
+        "rtol": 0.02,
+        "atol": 0.02,
+        "max_rtol": 0.05,
+        "passed": true
+      }
+    }
+  },
+  "knight_matches_fp16_diagnostic": {
+    "captured_velocities": 22,
+    "final_latent": true,
+    "decoded_logits": true,
+    "geometry": true,
+    "fixed_lighting_png": true
+  },
+  "end_to_end_timing_mode": "One FP16 development job per fixture. No controlled paired repeats.",
+  "fixtures": {
+    "knight": {
+      "ss_final_relative_l2": 0.029659907138238635,
+      "decoded_occupancy_iou": 0.9915469146238377,
+      "silhouette_iou": {
+        "0": 0.982431582577648,
+        "90": 0.9588390363584162,
+        "180": 0.9823910088653561,
+        "300": 0.9633011842265902
+      },
+      "min_silhouette_iou": 0.9588390363584162,
+      "passed_quality": true,
+      "glb": {
+        "vertices": 107128,
+        "triangles": 144190,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "bytes": 9004064,
+        "valid": true
+      },
+      "glb_sha256": "9a090212cbf2de0aa2d73c1bde752631964857e7ad52a1d0c6117f8adea40580",
+      "mlx_peak_active_bytes": 3840174180,
+      "whole_job_seconds": 178.384,
+      "ss_stage_seconds": 37.7738,
+      "additional_footprint_bytes": 8381944968,
+      "glint_import_passed": true,
+      "fixed_lighting_png_sha256": "bc8de891cedc7960aebc6ea8d840a7d26608559d5a5441e43ace2b52359da1f2"
+    },
+    "axe": {
+      "ss_final_relative_l2": 0.045287776732331864,
+      "decoded_occupancy_iou": 0.9974987493746873,
+      "silhouette_iou": {
+        "0": 1.0,
+        "90": 1.0,
+        "180": 1.0,
+        "300": 1.0
+      },
+      "min_silhouette_iou": 1.0,
+      "passed_quality": true,
+      "glb": {
+        "vertices": 95681,
+        "triangles": 142372,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "bytes": 7516040,
+        "valid": true
+      },
+      "glb_sha256": "4cc4ab7bc4fe6aff24389d983cf0253b0b2c2b780ed98a6b288b1065f45b1b81",
+      "mlx_peak_active_bytes": 3840174180,
+      "whole_job_seconds": 148.045,
+      "ss_stage_seconds": 38.9062,
+      "additional_footprint_bytes": 8346178696,
+      "glint_import_passed": true,
+      "fixed_lighting_png_sha256": "31311f3dcba47122ff2d3d0bbaedc19fc85aec8f1576691bfd9980a2df54ff24"
+    },
+    "drone": {
+      "ss_final_relative_l2": 0.09806091121118389,
+      "decoded_occupancy_iou": 0.9879552217656228,
+      "silhouette_iou": {
+        "0": 0.9763985341977808,
+        "90": 0.9775268931728619,
+        "180": 0.9764723973550669,
+        "300": 0.9807545061357945
+      },
+      "min_silhouette_iou": 0.9763985341977808,
+      "passed_quality": true,
+      "glb": {
+        "vertices": 106331,
+        "triangles": 139984,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "bytes": 7590064,
+        "valid": true
+      },
+      "glb_sha256": "2e25b400bef481b921e5122b89d2c6004b5a092c5e2a7dabb508be775ce5f5ae",
+      "mlx_peak_active_bytes": 3840174180,
+      "whole_job_seconds": 275.708,
+      "ss_stage_seconds": 40.6538,
+      "additional_footprint_bytes": 8311608528,
+      "glint_import_passed": true,
+      "fixed_lighting_png_sha256": "dc4837ebf9f059f306d58280a564c6504bf916c3dea63519ed74e2d5ede1e79f"
+    },
+    "chest": {
+      "ss_final_relative_l2": 0.13948013198159237,
+      "decoded_occupancy_iou": 0.9890290729566649,
+      "silhouette_iou": {
+        "0": 0.9891294138274357,
+        "90": 0.9886513866401272,
+        "180": 0.9891355396224052,
+        "300": 0.9933098860769172
+      },
+      "min_silhouette_iou": 0.9886513866401272,
+      "passed_quality": true,
+      "glb": {
+        "vertices": 102887,
+        "triangles": 146908,
+        "textures": [
+          [
+            1024,
+            1024
+          ],
+          [
+            1024,
+            1024
+          ]
+        ],
+        "bytes": 9646476,
+        "valid": true
+      },
+      "glb_sha256": "839b5a77af58e7f04d79a71bb7bc66e658c85f1475ae4efd2341e948774bb7c7",
+      "mlx_peak_active_bytes": 3840174180,
+      "whole_job_seconds": 462.831,
+      "ss_stage_seconds": 37.7359,
+      "additional_footprint_bytes": 8312804488,
+      "glint_import_passed": true,
+      "fixed_lighting_png_sha256": "9af6382ffcea7457e83e64af75aa707623fcff505ec0132f9449e772e4596e62"
+    }
+  }
+}

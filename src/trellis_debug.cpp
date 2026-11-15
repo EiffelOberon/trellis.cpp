@@ -103,7 +103,7 @@ ggml_status compute_graph(ggml_backend_t backend, ggml_cgraph* graph, const char
 
 ggml_status compute_graph_sched(ggml_backend_sched_t sched, ggml_cgraph* graph, const char* label) {
     const int n = graph ? ggml_graph_n_nodes(graph) : 0;
-    return run_instrumented(
+    const auto status = run_instrumented(
         label, "sched", n,
         [&] { return ggml_backend_sched_graph_compute(sched, graph); },
         [&] {
@@ -113,6 +113,25 @@ ggml_status compute_graph_sched(ggml_backend_sched_t sched, ggml_cgraph* graph, 
                     ggml_backend_sched_get_n_splits(sched),
                     ggml_backend_sched_get_n_copies(sched));
         });
+    if (status == GGML_STATUS_SUCCESS && std::getenv("TRELLIS_DBG_PLACEMENT")) {
+        std::map<std::pair<std::string, ggml_op>, size_t> ops;
+        for (int i = 0; i < n; ++i) {
+            auto* node = ggml_graph_node(graph, i);
+            auto* assigned = ggml_backend_sched_get_tensor_backend(sched, node);
+            if (assigned) ++ops[{ggml_backend_name(assigned), node->op}];
+        }
+        fprintf(stderr, "[placement] %s splits=%d scheduler_copy_slots=%d",
+                label, ggml_backend_sched_get_n_splits(sched), ggml_backend_sched_get_n_copies(sched));
+        for (int i = 0; i < ggml_backend_sched_get_n_backends(sched); ++i) {
+            auto* backend = ggml_backend_sched_get_backend(sched, i);
+            fprintf(stderr, " %s_buffer=%zu", ggml_backend_name(backend),
+                    ggml_backend_sched_get_buffer_size(sched, backend));
+        }
+        for (const auto& [key, count] : ops)
+            fprintf(stderr, " %s/%s=%zu", key.first.c_str(), ggml_op_name(key.second), count);
+        fprintf(stderr, "\n");
+    }
+    return status;
 }
 
 }  // namespace trellis

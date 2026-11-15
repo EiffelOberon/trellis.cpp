@@ -338,7 +338,8 @@ static Feat deform_module(const Model& m, const std::string& p, const Feat& x, i
     T* w = m.get(ac + ".regular_conv.weight"); int OC = (int)w->ne[3];
     std::vector<float> wt = tensor_to_f32(w);                      // [KW,KH,Cin,OC] == [OC,Cin,K,K] C-order
     Feat o; o.C = OC; o.H = x.H; o.W = x.W; o.d.resize((size_t)OC * x.H * x.W);
-    deform_conv2d_run(x.d.data(), x.C, x.H, x.W, off.d.data(), mod.d.data(), wt.data(), nullptr, OC, K, o.d.data(), gpu);
+    auto deform = gpu < 0 ? deform_conv2d_cpu : deform_conv2d_run;
+    deform(x.d.data(), x.C, x.H, x.W, off.d.data(), mod.d.data(), wt.data(), nullptr, OC, K, o.d.data(), gpu);
     bn(m, p + ".bn", o); relu(o);
     return o;
 }

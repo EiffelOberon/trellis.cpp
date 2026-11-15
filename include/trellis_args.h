@@ -38,7 +38,10 @@ struct TrellisParams {
     std::string backend;        // force a ggml backend by name ("Vulkan", "HTP",
                                 // "CPU", ...); empty = auto-select. --gpu N then indexes
                                 // within that backend's devices.
-    std::string ss_engine;      // fixed-shape TensorRT SS flow engine; empty = GGML
+    std::string device;         // explicit execution device: metal, cuda, cpu
+    std::string ss_backend;     // ggml, tensorrt, mlx
+    std::string ss_engine;      // fixed-shape TensorRT SS flow engine
+    std::string ss_weights;     // original SS safetensors for MLX
     std::string capture_dir;    // optional parity fixtures (noise + SS forwards)
     int threads = 0;            // CPU backend thread count; 0 = auto (all cores).
                                 // ggml's own default is GGML_DEFAULT_N_THREADS == 4.

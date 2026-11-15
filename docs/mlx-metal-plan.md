@@ -1,6 +1,7 @@
 # TRELLIS.2 MLX / Metal plan for Glint
 
-Status: proposed; no MLX implementation or Mac validation yet.
+The worker implementation and qualification evidence are tracked in the
+[Apple silicon build and validation guide](mlx-metal.md).
 Starting point: trellis.cpp `456a000b98ec18eaf8805e357f2684f465af1c7e`.
 Create `codex/mlx-metal` when implementation starts.
 

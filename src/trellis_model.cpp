@@ -76,16 +76,27 @@ static bool name_matches(const char* have, const std::string& want) {
 // Devices whose ggml backend registration (e.g. "Vulkan", "Hexagon", "CPU") or device
 // name (e.g. "Vulkan0") matches `want`, in registration order.
 static std::vector<ggml_backend_dev_t> devices_named(const std::string& want) {
+    const std::string registration = name_matches("Metal", want) ? "MTL" : want;
     std::vector<ggml_backend_dev_t> out;
     for (size_t i = 0; i < ggml_backend_dev_count(); ++i) {
         ggml_backend_dev_t d = ggml_backend_dev_get(i);
         if (!d) continue;
-        if (name_matches(ggml_backend_reg_name(ggml_backend_dev_backend_reg(d)), want) ||
+        if (name_matches(ggml_backend_reg_name(ggml_backend_dev_backend_reg(d)), registration) ||
             name_matches(ggml_backend_dev_name(d), want)) {
             out.push_back(d);
         }
     }
     return out;
+}
+
+std::string require_execution_device(const std::string& backend, int index) {
+    const auto devices = devices_named(backend);
+    if (index < 0 || static_cast<size_t>(index) >= devices.size())
+        throw std::invalid_argument("Execution device unavailable: " + backend + ":" + std::to_string(index));
+    const auto device = devices[index];
+    const auto* name = ggml_backend_dev_name(device);
+    if (!name || !*name) throw std::invalid_argument("Execution device unavailable: " + backend);
+    return std::string(name) + " (" + ggml_backend_dev_description(device) + ")";
 }
 
 static void list_backends(FILE* f) {
@@ -448,6 +459,8 @@ void Model::swap(Model& other) noexcept {
 }
 
 void Model::free() {
+    if (sched) ggml_backend_sched_synchronize(sched);
+    else if (backend) ggml_backend_synchronize(backend);
     if (sched) ggml_backend_sched_free(sched);
     if (buffer_repack) ggml_backend_buffer_free(buffer_repack);
     if (buffer) ggml_backend_buffer_free(buffer);
